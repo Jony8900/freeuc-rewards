@@ -108,7 +108,7 @@ export function HomePage() {
               <h3 className="font-display text-2xl text-white mb-1">
                 {watchingAd ? t('watchingAd') : t('watchAd')}
               </h3>
-              <p className="text-[#8A8A93] text-sm">+5 {t('points')}</p>
+              <p className="text-[#8A8A93] text-sm">+10 {t('points')}</p>
             </div>
             
             <div className={`w-16 h-16 rounded-full bg-[#F39C12] flex items-center justify-center ${!watchingAd ? 'pulse-gold' : ''}`}>
