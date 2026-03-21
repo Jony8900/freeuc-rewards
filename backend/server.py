@@ -146,14 +146,14 @@ def generate_referral_code() -> str:
 
 # ============ UC PACKAGES ============
 
-# UC Packages - أسعار أعلى لتكون واقعية
+# UC Packages - أسعار معدّلة للربح بعد الضرائب السويدية
 UC_PACKAGES = [
-    {"id": "uc_60", "name": "60 UC", "uc_amount": 60, "points_cost": 1500, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
-    {"id": "uc_325", "name": "325 UC", "uc_amount": 325, "points_cost": 7500, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
-    {"id": "uc_660", "name": "660 UC", "uc_amount": 660, "points_cost": 15000, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
-    {"id": "uc_1800", "name": "1800 UC", "uc_amount": 1800, "points_cost": 40000, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
-    {"id": "uc_3850", "name": "3850 UC", "uc_amount": 3850, "points_cost": 80000, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
-    {"id": "uc_8100", "name": "8100 UC", "uc_amount": 8100, "points_cost": 160000, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
+    {"id": "uc_60", "name": "60 UC", "uc_amount": 60, "points_cost": 6500, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
+    {"id": "uc_325", "name": "325 UC", "uc_amount": 325, "points_cost": 32000, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
+    {"id": "uc_660", "name": "660 UC", "uc_amount": 660, "points_cost": 65000, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
+    {"id": "uc_1800", "name": "1800 UC", "uc_amount": 1800, "points_cost": 160000, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
+    {"id": "uc_3850", "name": "3850 UC", "uc_amount": 3850, "points_cost": 325000, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
+    {"id": "uc_8100", "name": "8100 UC", "uc_amount": 8100, "points_cost": 650000, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
 ]
 
 POINTS_PER_AD = 10
