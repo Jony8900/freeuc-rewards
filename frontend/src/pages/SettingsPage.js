@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { 
   Settings, Save, Palette, Type, Image, 
   DollarSign, Mail, MessageCircle, Shield,
-  RefreshCw, Check
+  RefreshCw, Check, Clock
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -274,6 +274,72 @@ export function SettingsPage() {
                 className="w-full bg-[#0A0A0C] border border-[#27272A] rounded-sm px-3 py-2 text-white text-sm focus:border-[#F39C12]"
               />
             </div>
+          </div>
+        </div>
+
+        {/* Ad Limits Settings */}
+        <div className="bg-[#141419] border border-[#27272A] rounded-sm p-4 mb-4">
+          <h2 className="text-[#F39C12] text-sm uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+            <Clock className="w-4 h-4" />
+            {isRTL ? 'حدود الإعلانات' : 'Ad Limits'}
+          </h2>
+          
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-xs text-[#8A8A93] mb-2">
+                {isRTL ? 'الحد اليومي' : 'Daily Limit'}
+              </label>
+              <input
+                type="number"
+                value={formData.daily_ad_limit || 50}
+                onChange={(e) => handleChange('daily_ad_limit', parseInt(e.target.value) || 0)}
+                className="w-full bg-[#0A0A0C] border border-[#27272A] rounded-sm px-3 py-2 text-white text-sm focus:border-[#F39C12]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-[#8A8A93] mb-2">
+                {isRTL ? 'الحد الساعي' : 'Hourly Limit'}
+              </label>
+              <input
+                type="number"
+                value={formData.hourly_ad_limit || 10}
+                onChange={(e) => handleChange('hourly_ad_limit', parseInt(e.target.value) || 0)}
+                className="w-full bg-[#0A0A0C] border border-[#27272A] rounded-sm px-3 py-2 text-white text-sm focus:border-[#F39C12]"
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs text-[#8A8A93] mb-2">
+                {isRTL ? 'الانتظار بين الإعلانات (ثانية)' : 'Cooldown (seconds)'}
+              </label>
+              <input
+                type="number"
+                value={formData.ad_cooldown_seconds || 30}
+                onChange={(e) => handleChange('ad_cooldown_seconds', parseInt(e.target.value) || 0)}
+                className="w-full bg-[#0A0A0C] border border-[#27272A] rounded-sm px-3 py-2 text-white text-sm focus:border-[#F39C12]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-[#8A8A93] mb-2">
+                {isRTL ? 'مدة الإعلان (ثانية)' : 'Ad Duration (seconds)'}
+              </label>
+              <input
+                type="number"
+                value={formData.ad_duration_seconds || 5}
+                onChange={(e) => handleChange('ad_duration_seconds', parseInt(e.target.value) || 0)}
+                className="w-full bg-[#0A0A0C] border border-[#27272A] rounded-sm px-3 py-2 text-white text-sm focus:border-[#F39C12]"
+              />
+            </div>
+          </div>
+          
+          <div className="mt-4 p-3 bg-[#0A0A0C] rounded-sm">
+            <p className="text-[#8A8A93] text-xs">
+              {isRTL 
+                ? `💡 بهذه الإعدادات: المستخدم يمكنه ربح ${(formData.daily_ad_limit || 50) * (formData.points_per_ad || 10)} نقطة يومياً كحد أقصى`
+                : `💡 With these settings: User can earn max ${(formData.daily_ad_limit || 50) * (formData.points_per_ad || 10)} points daily`}
+            </p>
           </div>
         </div>
 

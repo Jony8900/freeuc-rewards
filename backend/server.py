@@ -246,12 +246,73 @@ async def get_me(user: dict = Depends(get_current_user)):
 @api_router.post("/ads/watch", response_model=WatchAdResponse)
 async def watch_ad(user: dict = Depends(get_current_user)):
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    current_hour = datetime.now(timezone.utc).strftime("%Y-%m-%d-%H")
+    
+    # Get settings for limits
+    settings = await db.settings.find_one({"id": "app_settings"}, {"_id": 0})
+    if not settings:
+        settings = DEFAULT_SETTINGS
+    
+    daily_limit = settings.get("daily_ad_limit", 50)
+    hourly_limit = settings.get("hourly_ad_limit", 10)
+    cooldown_seconds = settings.get("ad_cooldown_seconds", 30)
+    points_per_ad = settings.get("points_per_ad", POINTS_PER_AD)
+    
+    # Get today's progress
+    progress = await db.daily_progress.find_one(
+        {"user_id": user["id"], "date": today},
+        {"_id": 0}
+    )
+    
+    if not progress:
+        progress = {
+            "user_id": user["id"],
+            "date": today,
+            "ads_watched": 0,
+            "hourly_ads": {},
+            "last_ad_time": None,
+            "referrals_today": 0,
+            "logged_in": True,
+            "claimed_tasks": []
+        }
+        await db.daily_progress.insert_one(progress)
+    
+    # Check daily limit
+    if progress.get("ads_watched", 0) >= daily_limit:
+        raise HTTPException(
+            status_code=429, 
+            detail=f"لقد وصلت للحد اليومي ({daily_limit} إعلان). عد غداً!"
+        )
+    
+    # Check hourly limit
+    hourly_ads = progress.get("hourly_ads", {})
+    current_hour_ads = hourly_ads.get(current_hour, 0)
+    if current_hour_ads >= hourly_limit:
+        raise HTTPException(
+            status_code=429, 
+            detail=f"لقد وصلت للحد الساعي ({hourly_limit} إعلان). انتظر للساعة القادمة!"
+        )
+    
+    # Check cooldown
+    last_ad_time = progress.get("last_ad_time")
+    if last_ad_time:
+        last_ad_dt = datetime.fromisoformat(last_ad_time.replace('Z', '+00:00'))
+        seconds_since_last = (datetime.now(timezone.utc) - last_ad_dt).total_seconds()
+        if seconds_since_last < cooldown_seconds:
+            remaining = int(cooldown_seconds - seconds_since_last)
+            raise HTTPException(
+                status_code=429, 
+                detail=f"انتظر {remaining} ثانية قبل مشاهدة إعلان آخر"
+            )
+    
+    # Update hourly count
+    hourly_ads[current_hour] = current_hour_ads + 1
     
     # Update user points and daily progress
     await db.users.update_one(
         {"id": user["id"]},
         {
-            "$inc": {"points": POINTS_PER_AD, "total_earned": POINTS_PER_AD, "ads_watched": 1},
+            "$inc": {"points": points_per_ad, "total_earned": points_per_ad, "ads_watched": 1},
             "$set": {"last_ad_time": datetime.now(timezone.utc).isoformat()}
         }
     )
@@ -259,17 +320,80 @@ async def watch_ad(user: dict = Depends(get_current_user)):
     # Update daily tasks progress
     await db.daily_progress.update_one(
         {"user_id": user["id"], "date": today},
-        {"$inc": {"ads_watched": 1}},
+        {
+            "$inc": {"ads_watched": 1},
+            "$set": {
+                "last_ad_time": datetime.now(timezone.utc).isoformat(),
+                "hourly_ads": hourly_ads
+            }
+        },
         upsert=True
     )
     
-    new_balance = user["points"] + POINTS_PER_AD
+    new_balance = user["points"] + points_per_ad
+    ads_remaining = daily_limit - progress.get("ads_watched", 0) - 1
     
     return WatchAdResponse(
-        points_earned=POINTS_PER_AD,
+        points_earned=points_per_ad,
         new_balance=new_balance,
-        message="تم إضافة النقاط بنجاح!"
+        message=f"تم إضافة {points_per_ad} نقاط! متبقي {ads_remaining} إعلان اليوم"
     )
+
+@api_router.get("/ads/status")
+async def get_ad_status(user: dict = Depends(get_current_user)):
+    """Get current ad watching status and limits"""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    current_hour = datetime.now(timezone.utc).strftime("%Y-%m-%d-%H")
+    
+    # Get settings
+    settings = await db.settings.find_one({"id": "app_settings"}, {"_id": 0})
+    if not settings:
+        settings = DEFAULT_SETTINGS
+    
+    daily_limit = settings.get("daily_ad_limit", 50)
+    hourly_limit = settings.get("hourly_ad_limit", 10)
+    cooldown_seconds = settings.get("ad_cooldown_seconds", 30)
+    ad_duration = settings.get("ad_duration_seconds", 5)
+    points_per_ad = settings.get("points_per_ad", POINTS_PER_AD)
+    
+    # Get progress
+    progress = await db.daily_progress.find_one(
+        {"user_id": user["id"], "date": today},
+        {"_id": 0}
+    )
+    
+    ads_watched_today = progress.get("ads_watched", 0) if progress else 0
+    hourly_ads = progress.get("hourly_ads", {}) if progress else {}
+    ads_watched_this_hour = hourly_ads.get(current_hour, 0)
+    last_ad_time = progress.get("last_ad_time") if progress else None
+    
+    # Calculate cooldown remaining
+    cooldown_remaining = 0
+    if last_ad_time:
+        last_ad_dt = datetime.fromisoformat(last_ad_time.replace('Z', '+00:00'))
+        seconds_since_last = (datetime.now(timezone.utc) - last_ad_dt).total_seconds()
+        if seconds_since_last < cooldown_seconds:
+            cooldown_remaining = int(cooldown_seconds - seconds_since_last)
+    
+    can_watch = (
+        ads_watched_today < daily_limit and 
+        ads_watched_this_hour < hourly_limit and 
+        cooldown_remaining == 0
+    )
+    
+    return {
+        "can_watch": can_watch,
+        "daily_limit": daily_limit,
+        "hourly_limit": hourly_limit,
+        "ads_watched_today": ads_watched_today,
+        "ads_remaining_today": daily_limit - ads_watched_today,
+        "ads_watched_this_hour": ads_watched_this_hour,
+        "ads_remaining_this_hour": hourly_limit - ads_watched_this_hour,
+        "cooldown_seconds": cooldown_seconds,
+        "cooldown_remaining": cooldown_remaining,
+        "ad_duration": ad_duration,
+        "points_per_ad": points_per_ad
+    }
 
 @api_router.get("/points/balance")
 async def get_balance(user: dict = Depends(get_current_user)):
@@ -537,7 +661,12 @@ DEFAULT_SETTINGS = {
         "telegram": "",
         "whatsapp": "",
         "instagram": ""
-    }
+    },
+    # Ad Limits
+    "daily_ad_limit": 50,
+    "hourly_ad_limit": 10,
+    "ad_cooldown_seconds": 30,
+    "ad_duration_seconds": 5
 }
 
 @api_router.get("/settings")

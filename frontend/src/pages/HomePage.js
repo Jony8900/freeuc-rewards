@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Play, TrendingUp, Gift, Tv } from 'lucide-react';
+import { Play, TrendingUp, Gift, Tv, Clock, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { Logo } from '../components/Logo';
@@ -9,36 +9,76 @@ import { Logo } from '../components/Logo';
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export function HomePage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user, updateUser, refreshUser } = useAuth();
   const [watchingAd, setWatchingAd] = useState(false);
   const [adProgress, setAdProgress] = useState(0);
+  const [adStatus, setAdStatus] = useState(null);
+  const [cooldown, setCooldown] = useState(0);
 
-  const refreshUserData = useCallback(() => {
-    refreshUser();
-  }, [refreshUser]);
+  const isRTL = language === 'ar';
+
+  const fetchAdStatus = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API}/ads/status`);
+      setAdStatus(response.data);
+      setCooldown(response.data.cooldown_remaining || 0);
+    } catch (error) {
+      console.error('Failed to fetch ad status:', error);
+    }
+  }, []);
 
   useEffect(() => {
-    refreshUserData();
-  }, [refreshUserData]);
+    refreshUser();
+    fetchAdStatus();
+  }, [refreshUser, fetchAdStatus]);
+
+  // Cooldown timer
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setInterval(() => {
+        setCooldown(prev => {
+          if (prev <= 1) {
+            fetchAdStatus();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [cooldown, fetchAdStatus]);
 
   const watchAd = async () => {
+    if (!adStatus?.can_watch) {
+      if (adStatus?.ads_remaining_today === 0) {
+        toast.error(isRTL ? 'لقد وصلت للحد اليومي. عد غداً!' : 'Daily limit reached. Come back tomorrow!');
+      } else if (adStatus?.ads_remaining_this_hour === 0) {
+        toast.error(isRTL ? 'لقد وصلت للحد الساعي. انتظر قليلاً!' : 'Hourly limit reached. Wait a bit!');
+      } else if (cooldown > 0) {
+        toast.error(isRTL ? `انتظر ${cooldown} ثانية` : `Wait ${cooldown} seconds`);
+      }
+      return;
+    }
+
     setWatchingAd(true);
     setAdProgress(0);
     
-    // Simulate ad watching (5 seconds)
-    const interval = setInterval(() => {
+    const duration = (adStatus?.ad_duration || 5) * 1000;
+    const interval = 100;
+    const increment = (interval / duration) * 100;
+
+    const progressInterval = setInterval(() => {
       setAdProgress(prev => {
         if (prev >= 100) {
-          clearInterval(interval);
+          clearInterval(progressInterval);
           return 100;
         }
-        return prev + 4;
+        return prev + increment;
       });
-    }, 200);
+    }, interval);
 
-    // Wait for ad to complete
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await new Promise(resolve => setTimeout(resolve, duration));
     
     try {
       const response = await axios.post(`${API}/ads/watch`);
@@ -46,14 +86,18 @@ export function HomePage() {
         points: response.data.new_balance,
         total_earned: (user?.total_earned || 0) + response.data.points_earned
       });
-      toast.success(t('pointsEarned', { points: response.data.points_earned }));
+      toast.success(response.data.message);
+      fetchAdStatus();
     } catch (error) {
-      toast.error(t('error'));
+      const message = error.response?.data?.detail || (isRTL ? 'حدث خطأ' : 'An error occurred');
+      toast.error(message);
     } finally {
       setWatchingAd(false);
       setAdProgress(0);
     }
   };
+
+  const canWatch = adStatus?.can_watch && cooldown === 0;
 
   return (
     <div className="min-h-screen bg-[#0A0A0C] pb-24 noise-bg">
@@ -66,7 +110,7 @@ export function HomePage() {
           <div className="flex items-center justify-center gap-3">
             <Logo size={48} />
             <span className="font-display text-6xl text-[#F39C12] gold-glow" data-testid="points-balance">
-              {user?.points || 0}
+              {user?.points?.toLocaleString() || 0}
             </span>
           </div>
           <p className="text-center text-[#8A8A93] text-sm mt-2">{t('points')}</p>
@@ -76,12 +120,12 @@ export function HomePage() {
         <div className="grid grid-cols-3 gap-3 mb-6">
           <div className="bg-[#141419] border border-[#27272A] rounded-sm p-4 text-center">
             <TrendingUp className="w-5 h-5 text-green-500 mx-auto mb-2" />
-            <p className="font-display text-xl text-white">{user?.total_earned || 0}</p>
+            <p className="font-display text-xl text-white">{user?.total_earned?.toLocaleString() || 0}</p>
             <p className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A93]">{t('totalEarned')}</p>
           </div>
           <div className="bg-[#141419] border border-[#27272A] rounded-sm p-4 text-center">
             <Gift className="w-5 h-5 text-[#F39C12] mx-auto mb-2" />
-            <p className="font-display text-xl text-white">{user?.total_redeemed || 0}</p>
+            <p className="font-display text-xl text-white">{user?.total_redeemed?.toLocaleString() || 0}</p>
             <p className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A93]">{t('totalRedeemed')}</p>
           </div>
           <div className="bg-[#141419] border border-[#27272A] rounded-sm p-4 text-center">
@@ -91,10 +135,40 @@ export function HomePage() {
           </div>
         </div>
 
+        {/* Daily Ad Status */}
+        {adStatus && (
+          <div className="bg-[#141419] border border-[#27272A] rounded-sm p-4 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[#8A8A93] text-sm">
+                {isRTL ? 'الإعلانات اليومية' : 'Daily Ads'}
+              </span>
+              <span className="text-[#F39C12] font-display">
+                {adStatus.ads_watched_today}/{adStatus.daily_limit}
+              </span>
+            </div>
+            <div className="w-full h-2 bg-[#27272A] rounded-full overflow-hidden mb-2">
+              <div 
+                className="h-full bg-[#F39C12] transition-all duration-300"
+                style={{ width: `${(adStatus.ads_watched_today / adStatus.daily_limit) * 100}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-xs text-[#8A8A93]">
+              <span>
+                {isRTL ? `متبقي: ${adStatus.ads_remaining_today}` : `Remaining: ${adStatus.ads_remaining_today}`}
+              </span>
+              <span>
+                {isRTL ? `هذه الساعة: ${adStatus.ads_watched_this_hour}/${adStatus.hourly_limit}` : `This hour: ${adStatus.ads_watched_this_hour}/${adStatus.hourly_limit}`}
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Watch Ad Card */}
         <div 
-          className={`relative bg-gradient-to-br from-[#1a1a1f] to-[#141419] border border-[#27272A] rounded-sm overflow-hidden ${watchingAd ? '' : 'card-hover cursor-pointer'}`}
-          onClick={!watchingAd ? watchAd : undefined}
+          className={`relative bg-gradient-to-br from-[#1a1a1f] to-[#141419] border rounded-sm overflow-hidden ${
+            canWatch ? 'border-[#27272A] card-hover cursor-pointer' : 'border-red-500/30 opacity-70'
+          }`}
+          onClick={canWatch && !watchingAd ? watchAd : undefined}
           data-testid="watch-ad-card"
         >
           {/* Background gradient */}
@@ -111,16 +185,42 @@ export function HomePage() {
           <div className="relative p-6 flex items-center justify-between">
             <div>
               <h3 className="font-display text-2xl text-white mb-1">
-                {watchingAd ? t('watchingAd') : t('watchAd')}
+                {watchingAd ? (isRTL ? 'جاري المشاهدة...' : 'Watching...') : t('watchAd')}
               </h3>
-              <p className="text-[#8A8A93] text-sm">+10 {t('points')}</p>
+              <p className="text-[#8A8A93] text-sm">+{adStatus?.points_per_ad || 10} {t('points')}</p>
+              
+              {/* Cooldown or limit warning */}
+              {!canWatch && !watchingAd && (
+                <div className="flex items-center gap-2 mt-2 text-red-400 text-sm">
+                  {cooldown > 0 ? (
+                    <>
+                      <Clock className="w-4 h-4" />
+                      <span>{isRTL ? `انتظر ${cooldown} ثانية` : `Wait ${cooldown}s`}</span>
+                    </>
+                  ) : adStatus?.ads_remaining_today === 0 ? (
+                    <>
+                      <AlertCircle className="w-4 h-4" />
+                      <span>{isRTL ? 'انتهى الحد اليومي' : 'Daily limit reached'}</span>
+                    </>
+                  ) : adStatus?.ads_remaining_this_hour === 0 ? (
+                    <>
+                      <Clock className="w-4 h-4" />
+                      <span>{isRTL ? 'انتظر للساعة القادمة' : 'Wait for next hour'}</span>
+                    </>
+                  ) : null}
+                </div>
+              )}
             </div>
             
-            <div className={`w-16 h-16 rounded-full bg-[#F39C12] flex items-center justify-center ${!watchingAd ? 'pulse-gold' : ''}`}>
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+              canWatch ? 'bg-[#F39C12] pulse-gold' : 'bg-[#27272A]'
+            }`}>
               {watchingAd ? (
                 <div className="w-8 h-8 spinner" />
+              ) : cooldown > 0 ? (
+                <span className="font-display text-xl text-white">{cooldown}</span>
               ) : (
-                <Play className="w-8 h-8 text-black" fill="black" />
+                <Play className={`w-8 h-8 ${canWatch ? 'text-black' : 'text-[#8A8A93]'}`} fill={canWatch ? 'black' : 'currentColor'} />
               )}
             </div>
           </div>
@@ -133,7 +233,9 @@ export function HomePage() {
               <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-[#F39C12]/20 flex items-center justify-center">
                 <Tv className="w-10 h-10 text-[#F39C12] animate-pulse" />
               </div>
-              <p className="text-white font-display text-2xl mb-2">{t('watchingAd')}</p>
+              <p className="text-white font-display text-2xl mb-2">
+                {isRTL ? 'جاري مشاهدة الإعلان...' : 'Watching Ad...'}
+              </p>
               <p className="text-[#8A8A93]">{Math.round(adProgress)}%</p>
               <div className="w-48 h-2 bg-[#27272A] rounded-full mx-auto mt-4 overflow-hidden">
                 <div 
