@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from 'sonner';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { SettingsProvider } from './contexts/SettingsContext';
 import { AuthPage } from './pages/AuthPage';
 import { HomePage } from './pages/HomePage';
 import { TasksPage } from './pages/TasksPage';
@@ -11,6 +12,8 @@ import { RedeemPage } from './pages/RedeemPage';
 import { ReferralsPage } from './pages/ReferralsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { AdminPage } from './pages/AdminPage';
+import { SettingsPage } from './pages/SettingsPage';
+import { PackagesPage } from './pages/PackagesPage';
 import { BottomNav } from './components/BottomNav';
 
 // Protected Route Component
@@ -132,6 +135,26 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/settings"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <SettingsPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/packages"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <PackagesPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
@@ -141,21 +164,23 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <BrowserRouter>
-          <div className="App dark">
-            <AppRoutes />
-            <Toaster 
-              position="top-center" 
-              toastOptions={{
-                style: {
-                  background: '#141419',
-                  color: '#ffffff',
-                  border: '1px solid #27272A',
-                },
-              }}
-            />
-          </div>
-        </BrowserRouter>
+        <SettingsProvider>
+          <BrowserRouter>
+            <div className="App dark">
+              <AppRoutes />
+              <Toaster 
+                position="top-center" 
+                toastOptions={{
+                  style: {
+                    background: '#141419',
+                    color: '#ffffff',
+                    border: '1px solid #27272A',
+                  },
+                }}
+              />
+            </div>
+          </BrowserRouter>
+        </SettingsProvider>
       </AuthProvider>
     </LanguageProvider>
   );

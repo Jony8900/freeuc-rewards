@@ -519,6 +519,123 @@ async def toggle_admin(user_id: str, admin: dict = Depends(get_admin_user)):
     
     return {"message": f"Admin status updated to {new_status}"}
 
+# ============ APP SETTINGS ============
+
+DEFAULT_SETTINGS = {
+    "app_name": "Free UC Rewards",
+    "app_name_ar": "مكافآت UC المجانية",
+    "tagline": "EARN FREE UC",
+    "tagline_ar": "اربح UC مجاناً",
+    "primary_color": "#F39C12",
+    "secondary_color": "#E67E22",
+    "background_color": "#0A0A0C",
+    "logo_url": "",
+    "points_per_ad": 10,
+    "referral_bonus": 200,
+    "contact_email": "",
+    "social_links": {
+        "telegram": "",
+        "whatsapp": "",
+        "instagram": ""
+    }
+}
+
+@api_router.get("/settings")
+async def get_settings():
+    settings = await db.settings.find_one({"id": "app_settings"}, {"_id": 0})
+    if not settings:
+        settings = {"id": "app_settings", **DEFAULT_SETTINGS}
+        await db.settings.insert_one(settings)
+    return settings
+
+@api_router.put("/admin/settings")
+async def update_settings(settings: dict, admin: dict = Depends(get_admin_user)):
+    # Remove protected fields
+    settings.pop("id", None)
+    settings.pop("_id", None)
+    
+    await db.settings.update_one(
+        {"id": "app_settings"},
+        {"$set": settings},
+        upsert=True
+    )
+    
+    return {"message": "تم حفظ الإعدادات بنجاح"}
+
+# ============ UC PACKAGES MANAGEMENT ============
+
+class UCPackageCreate(BaseModel):
+    name: str
+    uc_amount: int
+    points_cost: int
+    is_active: bool = True
+
+class UCPackageUpdate(BaseModel):
+    name: Optional[str] = None
+    uc_amount: Optional[int] = None
+    points_cost: Optional[int] = None
+    is_active: Optional[bool] = None
+
+@api_router.get("/admin/packages")
+async def get_admin_packages(admin: dict = Depends(get_admin_user)):
+    packages = await db.uc_packages.find({}, {"_id": 0}).to_list(100)
+    if not packages:
+        # Initialize with default packages
+        for pkg in UC_PACKAGES:
+            pkg_data = {**pkg, "is_active": True}
+            await db.uc_packages.insert_one(pkg_data)
+        packages = await db.uc_packages.find({}, {"_id": 0}).to_list(100)
+    return packages
+
+@api_router.post("/admin/packages")
+async def create_package(package: UCPackageCreate, admin: dict = Depends(get_admin_user)):
+    package_id = f"uc_{package.uc_amount}"
+    
+    existing = await db.uc_packages.find_one({"id": package_id})
+    if existing:
+        raise HTTPException(status_code=400, detail="باقة بنفس الكمية موجودة بالفعل")
+    
+    package_data = {
+        "id": package_id,
+        "name": package.name,
+        "uc_amount": package.uc_amount,
+        "points_cost": package.points_cost,
+        "is_active": package.is_active,
+        "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"
+    }
+    
+    await db.uc_packages.insert_one(package_data)
+    return {"message": "تم إضافة الباقة بنجاح", "package": package_data}
+
+@api_router.put("/admin/packages/{package_id}")
+async def update_package(package_id: str, package: UCPackageUpdate, admin: dict = Depends(get_admin_user)):
+    existing = await db.uc_packages.find_one({"id": package_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="الباقة غير موجودة")
+    
+    update_data = {k: v for k, v in package.model_dump().items() if v is not None}
+    
+    if update_data:
+        await db.uc_packages.update_one({"id": package_id}, {"$set": update_data})
+    
+    return {"message": "تم تحديث الباقة بنجاح"}
+
+@api_router.delete("/admin/packages/{package_id}")
+async def delete_package(package_id: str, admin: dict = Depends(get_admin_user)):
+    result = await db.uc_packages.delete_one({"id": package_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="الباقة غير موجودة")
+    return {"message": "تم حذف الباقة بنجاح"}
+
+# Override the packages endpoint to use database
+@api_router.get("/packages", response_model=List[UCPackage])
+async def get_packages():
+    packages = await db.uc_packages.find({"is_active": True}, {"_id": 0}).to_list(100)
+    if not packages:
+        # Return default packages if none in DB
+        return [UCPackage(**pkg) for pkg in UC_PACKAGES]
+    return [UCPackage(**{k: v for k, v in pkg.items() if k in ['id', 'name', 'uc_amount', 'points_cost', 'image_url']}) for pkg in packages]
+
 # Create default admin user on startup
 @app.on_event("startup")
 async def create_default_admin():

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   Users, Coins, ShoppingBag, BarChart3, 
-  CheckCircle, XCircle, Clock, ChevronDown,
-  Shield, TrendingUp, Eye
+  CheckCircle, XCircle, Clock, Settings,
+  Shield, TrendingUp, Package
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
@@ -12,14 +13,17 @@ import axios from 'axios';
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export function AdminPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
   const [redemptions, setRedemptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
+
+  const isRTL = language === 'ar';
 
   useEffect(() => {
     if (isAdmin) {
@@ -102,6 +106,26 @@ export function AdminPage() {
           <Shield className="w-6 h-6 text-[#F39C12]" />
           {t('admin')}
         </h1>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <button
+            onClick={() => navigate('/admin/settings')}
+            data-testid="go-to-settings"
+            className="bg-[#141419] border border-[#27272A] rounded-sm p-4 flex items-center gap-3 hover:border-[#F39C12] transition-colors"
+          >
+            <Settings className="w-6 h-6 text-[#F39C12]" />
+            <span className="text-white text-sm">{isRTL ? 'إعدادات التطبيق' : 'App Settings'}</span>
+          </button>
+          <button
+            onClick={() => navigate('/admin/packages')}
+            data-testid="go-to-packages"
+            className="bg-[#141419] border border-[#27272A] rounded-sm p-4 flex items-center gap-3 hover:border-[#F39C12] transition-colors"
+          >
+            <Package className="w-6 h-6 text-[#F39C12]" />
+            <span className="text-white text-sm">{isRTL ? 'إدارة الباقات' : 'Manage Packages'}</span>
+          </button>
+        </div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6 overflow-x-auto">
