@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Eye, EyeOff, Gamepad2, Coins } from 'lucide-react';
+import { Eye, EyeOff, Gamepad2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Logo } from '../components/Logo';
 
 export function AuthPage() {
   const { t, isRTL } = useLanguage();
@@ -58,9 +59,9 @@ export function AuthPage() {
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <Coins className="w-12 h-12 text-[#F39C12]" />
-            <h1 className="font-display text-4xl text-white tracking-tight">PUBG UC</h1>
+          <div className="inline-flex flex-col items-center gap-2 mb-4">
+            <Logo size={72} />
+            <h1 className="font-display text-3xl text-white tracking-tight">Free UC Rewards</h1>
           </div>
           <p className="text-[#8A8A93] text-sm uppercase tracking-[0.2em]">
             {isRTL ? 'اربح UC مجاناً' : 'EARN FREE UC'}

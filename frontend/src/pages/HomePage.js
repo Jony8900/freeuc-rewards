@@ -1,21 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Play, Coins, TrendingUp, Gift, Tv } from 'lucide-react';
+import { Play, TrendingUp, Gift, Tv } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { Logo } from '../components/Logo';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export function HomePage() {
-  const { t, isRTL } = useLanguage();
+  const { t } = useLanguage();
   const { user, updateUser, refreshUser } = useAuth();
   const [watchingAd, setWatchingAd] = useState(false);
   const [adProgress, setAdProgress] = useState(0);
 
-  useEffect(() => {
+  const refreshUserData = useCallback(() => {
     refreshUser();
-  }, []);
+  }, [refreshUser]);
+
+  useEffect(() => {
+    refreshUserData();
+  }, [refreshUserData]);
 
   const watchAd = async () => {
     setWatchingAd(true);
@@ -59,7 +64,7 @@ export function HomePage() {
             {t('yourBalance')}
           </p>
           <div className="flex items-center justify-center gap-3">
-            <Coins className="w-10 h-10 text-[#F39C12]" />
+            <Logo size={48} />
             <span className="font-display text-6xl text-[#F39C12] gold-glow" data-testid="points-balance">
               {user?.points || 0}
             </span>
