@@ -241,6 +241,53 @@ async def login(data: UserLogin):
 async def get_me(user: dict = Depends(get_current_user)):
     return UserResponse(**{k: v for k, v in user.items() if k != "password"})
 
+@api_router.put("/auth/update-profile")
+async def update_profile(
+    email: Optional[str] = None,
+    username: Optional[str] = None,
+    pubg_id: Optional[str] = None,
+    user: dict = Depends(get_current_user)
+):
+    update_data = {}
+    
+    if email and email != user["email"]:
+        # Check if email already exists
+        existing = await db.users.find_one({"email": email, "id": {"$ne": user["id"]}})
+        if existing:
+            raise HTTPException(status_code=400, detail="البريد الإلكتروني مستخدم بالفعل")
+        update_data["email"] = email
+    
+    if username and username != user["username"]:
+        existing = await db.users.find_one({"username": username, "id": {"$ne": user["id"]}})
+        if existing:
+            raise HTTPException(status_code=400, detail="اسم المستخدم مستخدم بالفعل")
+        update_data["username"] = username
+    
+    if pubg_id:
+        update_data["pubg_id"] = pubg_id
+    
+    if update_data:
+        await db.users.update_one({"id": user["id"]}, {"$set": update_data})
+    
+    return {"message": "تم تحديث الملف الشخصي بنجاح"}
+
+@api_router.put("/auth/change-password")
+async def change_password(
+    current_password: str,
+    new_password: str,
+    user: dict = Depends(get_current_user)
+):
+    # Verify current password
+    db_user = await db.users.find_one({"id": user["id"]})
+    if not verify_password(current_password, db_user["password"]):
+        raise HTTPException(status_code=400, detail="كلمة المرور الحالية غير صحيحة")
+    
+    # Update password
+    new_hashed = hash_password(new_password)
+    await db.users.update_one({"id": user["id"]}, {"$set": {"password": new_hashed}})
+    
+    return {"message": "تم تغيير كلمة المرور بنجاح"}
+
 # ============ POINTS & ADS ROUTES ============
 
 @api_router.post("/ads/watch", response_model=WatchAdResponse)
