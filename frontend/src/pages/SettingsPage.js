@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { 
   Settings, Save, Palette, Type, Image, 
   DollarSign, Mail, MessageCircle, Shield,
-  RefreshCw, Check, Clock
+  RefreshCw, Check, Clock, Tv
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -344,7 +344,7 @@ export function SettingsPage() {
         </div>
 
         {/* Contact & Social */}
-        <div className="bg-[#141419] border border-[#27272A] rounded-sm p-4">
+        <div className="bg-[#141419] border border-[#27272A] rounded-sm p-4 mb-4">
           <h2 className="text-[#F39C12] text-sm uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
             <MessageCircle className="w-4 h-4" />
             {isRTL ? 'التواصل' : 'Contact & Social'}
@@ -397,6 +397,118 @@ export function SettingsPage() {
                 />
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Ad Networks Settings */}
+        <div className="bg-[#141419] border border-[#27272A] rounded-sm p-4 mb-4">
+          <h2 className="text-[#F39C12] text-sm uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+            <Tv className="w-4 h-4" />
+            {isRTL ? 'إعدادات الإعلانات' : 'Ad Networks'}
+          </h2>
+          
+          {/* AdSense Section */}
+          <div className="mb-6 p-3 bg-[#0A0A0C] rounded-sm">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-white font-semibold">Google AdSense</span>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.adsense_enabled || false}
+                  onChange={(e) => handleChange('adsense_enabled', e.target.checked)}
+                  className="w-4 h-4 accent-[#F39C12]"
+                />
+                <span className="text-sm text-[#8A8A93]">{isRTL ? 'مفعّل' : 'Enabled'}</span>
+              </label>
+            </div>
+            
+            {formData.adsense_enabled && (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs text-[#8A8A93] mb-1">Publisher ID</label>
+                  <input
+                    type="text"
+                    value={formData.adsense_client_id || ''}
+                    onChange={(e) => handleChange('adsense_client_id', e.target.value)}
+                    placeholder="ca-pub-1234567890123456"
+                    className="w-full bg-[#141419] border border-[#27272A] rounded-sm px-3 py-2 text-white text-sm focus:border-[#F39C12]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-[#8A8A93] mb-1">Banner Slot ID</label>
+                  <input
+                    type="text"
+                    value={formData.adsense_slot_banner || ''}
+                    onChange={(e) => handleChange('adsense_slot_banner', e.target.value)}
+                    placeholder="1234567890"
+                    className="w-full bg-[#141419] border border-[#27272A] rounded-sm px-3 py-2 text-white text-sm focus:border-[#F39C12]"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* AdMob Section */}
+          <div className="p-3 bg-[#0A0A0C] rounded-sm">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-white font-semibold">Google AdMob</span>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.admob_enabled || false}
+                  onChange={(e) => handleChange('admob_enabled', e.target.checked)}
+                  className="w-4 h-4 accent-[#F39C12]"
+                />
+                <span className="text-sm text-[#8A8A93]">{isRTL ? 'مفعّل' : 'Enabled'}</span>
+              </label>
+            </div>
+            
+            {formData.admob_enabled && (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs text-[#8A8A93] mb-1">App ID</label>
+                  <input
+                    type="text"
+                    value={formData.admob_app_id || ''}
+                    onChange={(e) => handleChange('admob_app_id', e.target.value)}
+                    placeholder="ca-app-pub-1234567890123456~1234567890"
+                    className="w-full bg-[#141419] border border-[#27272A] rounded-sm px-3 py-2 text-white text-sm focus:border-[#F39C12]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-[#8A8A93] mb-1">Rewarded Ad Unit ID</label>
+                  <input
+                    type="text"
+                    value={formData.admob_rewarded_id || ''}
+                    onChange={(e) => handleChange('admob_rewarded_id', e.target.value)}
+                    placeholder="ca-app-pub-1234567890123456/1234567890"
+                    className="w-full bg-[#141419] border border-[#27272A] rounded-sm px-3 py-2 text-white text-sm focus:border-[#F39C12]"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-[#8A8A93] mb-1">Banner Unit ID</label>
+                    <input
+                      type="text"
+                      value={formData.admob_banner_id || ''}
+                      onChange={(e) => handleChange('admob_banner_id', e.target.value)}
+                      placeholder="ca-app-pub-.../..."
+                      className="w-full bg-[#141419] border border-[#27272A] rounded-sm px-3 py-2 text-white text-sm focus:border-[#F39C12]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-[#8A8A93] mb-1">Interstitial Unit ID</label>
+                    <input
+                      type="text"
+                      value={formData.admob_interstitial_id || ''}
+                      onChange={(e) => handleChange('admob_interstitial_id', e.target.value)}
+                      placeholder="ca-app-pub-.../..."
+                      className="w-full bg-[#141419] border border-[#27272A] rounded-sm px-3 py-2 text-white text-sm focus:border-[#F39C12]"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

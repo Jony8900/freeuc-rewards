@@ -666,7 +666,16 @@ DEFAULT_SETTINGS = {
     "daily_ad_limit": 50,
     "hourly_ad_limit": 10,
     "ad_cooldown_seconds": 30,
-    "ad_duration_seconds": 5
+    "ad_duration_seconds": 5,
+    # Ad Network Settings
+    "adsense_enabled": False,
+    "adsense_client_id": "",
+    "adsense_slot_banner": "",
+    "admob_enabled": False,
+    "admob_app_id": "",
+    "admob_rewarded_id": "",
+    "admob_interstitial_id": "",
+    "admob_banner_id": ""
 }
 
 @api_router.get("/settings")
