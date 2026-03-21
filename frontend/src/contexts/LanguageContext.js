@@ -9,6 +9,7 @@ const translations = {
     profile: 'الحساب',
     referrals: 'الإحالات',
     admin: 'الإدارة',
+    tasks: 'المهام',
     
     // Auth
     login: 'تسجيل الدخول',
@@ -70,6 +71,12 @@ const translations = {
     approve: 'موافقة',
     reject: 'رفض',
     
+    // Tasks
+    dailyTasks: 'المهام اليومية',
+    claimReward: 'استلم المكافأة',
+    claimed: 'تم الاستلام',
+    dailyProgress: 'التقدم اليومي',
+    
     // General
     loading: 'جاري التحميل...',
     error: 'حدث خطأ',
@@ -84,6 +91,7 @@ const translations = {
     profile: 'Profile',
     referrals: 'Referrals',
     admin: 'Admin',
+    tasks: 'Tasks',
     
     // Auth
     login: 'Login',
@@ -144,6 +152,12 @@ const translations = {
     pendingRedemptions: 'Pending Redemptions',
     approve: 'Approve',
     reject: 'Reject',
+    
+    // Tasks
+    dailyTasks: 'Daily Tasks',
+    claimReward: 'Claim Reward',
+    claimed: 'Claimed',
+    dailyProgress: 'Daily Progress',
     
     // General
     loading: 'Loading...',

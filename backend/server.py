@@ -146,17 +146,28 @@ def generate_referral_code() -> str:
 
 # ============ UC PACKAGES ============
 
+# UC Packages - أسعار أعلى لتكون واقعية
 UC_PACKAGES = [
-    {"id": "uc_60", "name": "60 UC", "uc_amount": 60, "points_cost": 100, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
-    {"id": "uc_325", "name": "325 UC", "uc_amount": 325, "points_cost": 500, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
-    {"id": "uc_660", "name": "660 UC", "uc_amount": 660, "points_cost": 950, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
-    {"id": "uc_1800", "name": "1800 UC", "uc_amount": 1800, "points_cost": 2500, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
-    {"id": "uc_3850", "name": "3850 UC", "uc_amount": 3850, "points_cost": 5000, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
-    {"id": "uc_8100", "name": "8100 UC", "uc_amount": 8100, "points_cost": 10000, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
+    {"id": "uc_60", "name": "60 UC", "uc_amount": 60, "points_cost": 1500, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
+    {"id": "uc_325", "name": "325 UC", "uc_amount": 325, "points_cost": 7500, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
+    {"id": "uc_660", "name": "660 UC", "uc_amount": 660, "points_cost": 15000, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
+    {"id": "uc_1800", "name": "1800 UC", "uc_amount": 1800, "points_cost": 40000, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
+    {"id": "uc_3850", "name": "3850 UC", "uc_amount": 3850, "points_cost": 80000, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
+    {"id": "uc_8100", "name": "8100 UC", "uc_amount": 8100, "points_cost": 160000, "image_url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91?w=200"},
 ]
 
-POINTS_PER_AD = 5
-REFERRAL_BONUS = 50
+POINTS_PER_AD = 10
+REFERRAL_BONUS = 200
+
+# Daily Tasks Configuration
+DAILY_TASKS = [
+    {"id": "watch_3_ads", "name_ar": "شاهد 3 إعلانات", "name_en": "Watch 3 Ads", "target": 3, "type": "ads", "reward": 50},
+    {"id": "watch_5_ads", "name_ar": "شاهد 5 إعلانات", "name_en": "Watch 5 Ads", "target": 5, "type": "ads", "reward": 100},
+    {"id": "watch_10_ads", "name_ar": "شاهد 10 إعلانات", "name_en": "Watch 10 Ads", "target": 10, "type": "ads", "reward": 250},
+    {"id": "watch_20_ads", "name_ar": "شاهد 20 إعلانات", "name_en": "Watch 20 Ads", "target": 20, "type": "ads", "reward": 600},
+    {"id": "invite_friend", "name_ar": "ادعُ صديق", "name_en": "Invite a Friend", "target": 1, "type": "referral", "reward": 300},
+    {"id": "daily_login", "name_ar": "تسجيل دخول يومي", "name_en": "Daily Login", "target": 1, "type": "login", "reward": 25},
+]
 
 # ============ AUTH ROUTES ============
 
@@ -234,13 +245,22 @@ async def get_me(user: dict = Depends(get_current_user)):
 
 @api_router.post("/ads/watch", response_model=WatchAdResponse)
 async def watch_ad(user: dict = Depends(get_current_user)):
-    # Simulate ad watching (in real app, verify with ad network)
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    
+    # Update user points and daily progress
     await db.users.update_one(
         {"id": user["id"]},
         {
             "$inc": {"points": POINTS_PER_AD, "total_earned": POINTS_PER_AD, "ads_watched": 1},
             "$set": {"last_ad_time": datetime.now(timezone.utc).isoformat()}
         }
+    )
+    
+    # Update daily tasks progress
+    await db.daily_progress.update_one(
+        {"user_id": user["id"], "date": today},
+        {"$inc": {"ads_watched": 1}},
+        upsert=True
     )
     
     new_balance = user["points"] + POINTS_PER_AD
@@ -257,6 +277,109 @@ async def get_balance(user: dict = Depends(get_current_user)):
         "points": user["points"],
         "total_earned": user["total_earned"],
         "total_redeemed": user["total_redeemed"]
+    }
+
+# ============ DAILY TASKS ============
+
+@api_router.get("/tasks/daily")
+async def get_daily_tasks(user: dict = Depends(get_current_user)):
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    
+    # Get today's progress
+    progress = await db.daily_progress.find_one(
+        {"user_id": user["id"], "date": today},
+        {"_id": 0}
+    )
+    
+    if not progress:
+        progress = {
+            "user_id": user["id"],
+            "date": today,
+            "ads_watched": 0,
+            "referrals_today": 0,
+            "logged_in": False,
+            "claimed_tasks": []
+        }
+        await db.daily_progress.insert_one(progress)
+    
+    # Check if logged in today
+    if not progress.get("logged_in"):
+        await db.daily_progress.update_one(
+            {"user_id": user["id"], "date": today},
+            {"$set": {"logged_in": True}}
+        )
+        progress["logged_in"] = True
+    
+    # Build tasks with progress
+    tasks = []
+    for task in DAILY_TASKS:
+        task_data = {
+            "id": task["id"],
+            "name_ar": task["name_ar"],
+            "name_en": task["name_en"],
+            "target": task["target"],
+            "reward": task["reward"],
+            "claimed": task["id"] in progress.get("claimed_tasks", [])
+        }
+        
+        if task["type"] == "ads":
+            task_data["progress"] = min(progress.get("ads_watched", 0), task["target"])
+        elif task["type"] == "referral":
+            task_data["progress"] = min(progress.get("referrals_today", 0), task["target"])
+        elif task["type"] == "login":
+            task_data["progress"] = 1 if progress.get("logged_in") else 0
+        
+        task_data["completed"] = task_data["progress"] >= task["target"]
+        tasks.append(task_data)
+    
+    return {"date": today, "tasks": tasks}
+
+@api_router.post("/tasks/claim/{task_id}")
+async def claim_task_reward(task_id: str, user: dict = Depends(get_current_user)):
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    
+    # Find the task
+    task = next((t for t in DAILY_TASKS if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail="المهمة غير موجودة")
+    
+    # Get progress
+    progress = await db.daily_progress.find_one({"user_id": user["id"], "date": today})
+    if not progress:
+        raise HTTPException(status_code=400, detail="لم يتم العثور على تقدم اليوم")
+    
+    # Check if already claimed
+    if task_id in progress.get("claimed_tasks", []):
+        raise HTTPException(status_code=400, detail="تم استلام المكافأة مسبقاً")
+    
+    # Check if completed
+    current_progress = 0
+    if task["type"] == "ads":
+        current_progress = progress.get("ads_watched", 0)
+    elif task["type"] == "referral":
+        current_progress = progress.get("referrals_today", 0)
+    elif task["type"] == "login":
+        current_progress = 1 if progress.get("logged_in") else 0
+    
+    if current_progress < task["target"]:
+        raise HTTPException(status_code=400, detail="لم تكتمل المهمة بعد")
+    
+    # Give reward
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$inc": {"points": task["reward"], "total_earned": task["reward"]}}
+    )
+    
+    # Mark as claimed
+    await db.daily_progress.update_one(
+        {"user_id": user["id"], "date": today},
+        {"$push": {"claimed_tasks": task_id}}
+    )
+    
+    return {
+        "message": f"تم استلام {task['reward']} نقطة!",
+        "reward": task["reward"],
+        "new_balance": user["points"] + task["reward"]
     }
 
 # ============ UC PACKAGES & REDEMPTION ============

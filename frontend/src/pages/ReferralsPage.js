@@ -89,7 +89,7 @@ export function ReferralsPage() {
             </div>
             <p className="text-green-400 text-sm flex items-center gap-2">
               <Gift className="w-4 h-4" />
-              {t('referralBonus', { bonus: referralData?.bonus_per_referral || 50 })}
+              {t('referralBonus', { bonus: referralData?.bonus_per_referral || 200 })}
             </p>
           </div>
         </div>

@@ -6,6 +6,7 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AuthPage } from './pages/AuthPage';
 import { HomePage } from './pages/HomePage';
+import { TasksPage } from './pages/TasksPage';
 import { RedeemPage } from './pages/RedeemPage';
 import { ReferralsPage } from './pages/ReferralsPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -77,6 +78,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppLayout>
               <HomePage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/tasks"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <TasksPage />
             </AppLayout>
           </ProtectedRoute>
         }
