@@ -1,0 +1,128 @@
+{
+  "project_context": {
+    "app_type": "mobile_web_app (PWA)",
+    "target_audience": "PUBG mobile gamers (15-30), Arabic speakers primarily",
+    "theme_mode": "dark_only",
+    "design_archetype": "ARCHETYPE 2: THE PERFORMANCE PRO (Tactical & Esports)"
+  },
+  "typography": {
+    "headings": "Bebas Neue",
+    "body": "Manrope",
+    "strategy": "The 'Performance Pro' strategy adapted for Esports: Massive bold headings in Bebas Neue for impact and tactical feel, contrasted with highly readable Manrope for stats and small text. Strict uppercase for labels and buttons with wide tracking (tracking-[0.2em]).",
+    "rules": [
+      "Headlines (Size > 32px): MUST use tight letter spacing: tracking-tight.",
+      "Overlines / Labels: MUST be Uppercase + Tiny + Wide Spacing (tracking-[0.2em]).",
+      "Line Height: Tight (leading-none) for headers, Loose (leading-relaxed) for body."
+    ]
+  },
+  "colors": {
+    "palette": {
+      "background": "#0A0A0C",
+      "surface": "#141419",
+      "primary": "#F39C12",
+      "primary_foreground": "#000000",
+      "accent": "#E67E22",
+      "muted": "#8A8A93",
+      "border": "#27272A"
+    },
+    "strategy": "Deep Obsidian anchor (#0A0A0C) with PUBG Gold (#F39C12) as the kinetic trigger. High-visibility tactical look. Color is function: 90% of the UI should be monochrome dark grey/black. Gold/Orange exists ONLY to guide action (Watch Ad, Redeem).",
+    "contrast_rules": [
+      "Tinted Grey Rule: Neutral greys must have a slight warm tint to match the gold.",
+      "Hover states MUST explicitly set text color (e.g., hover:bg-primary/90 hover:text-black).",
+      "NEVER use pure transparent backgrounds for headers/navs without backdrop-blur."
+    ]
+  },
+  "visual_enhancers": {
+    "surfaces": [
+      {
+        "name": "The 'Tracing Beam' (Aceternity Look)",
+        "usage": "For the main 'Watch Ad' action card and featured UC packages. Use a shimmering border or glowing gradient line."
+      },
+      {
+        "name": "Tactical Glassmorphism",
+        "usage": "For the sticky PWA bottom navigation and floating modals. bg-black/80, backdrop-blur-xl, with a sharp 1px top border (border-white/10) and backdrop-saturate-150."
+      },
+      {
+        "name": "Grid Borders",
+        "usage": "For the Admin Dashboard. border-collapse style layout exposing the skeleton. 1px subtle borders (border-border/40)."
+      }
+    ],
+    "textures": [
+      "Subtle noise/grain overlay on the main background to prevent 'digital flatness' and give a gritty, battleground feel."
+    ],
+    "radii": "Sharp and Tactical. Override Shadcn default radius. Use rounded-none or max rounded-sm (2px-4px) for all cards and buttons to match the esports vibe."
+  },
+  "grids_and_layouts": {
+    "strategy": "Mobile-First 'Bento' Protocol. High density for stats, large hit areas for CTAs. Use CSS Grid with gap-4.",
+    "pwa_specific": "Must include a fixed bottom navigation bar (Home, Earn, Redeem, Profile). Page content padding-bottom: 5rem to avoid cutoff.",
+    "alignment": "Optical alignment over geometrical alignment. Left-align dense content, center-align massive numerical stats (e.g., Points Balance)."
+  },
+  "components": [
+    {
+      "name": "Points Balance Hero",
+      "style": "Massive Bebas Neue typography (text-6xl or larger), glowing gold text shadow, centered at the top of the Home Dashboard."
+    },
+    {
+      "name": "Watch Ad Card",
+      "style": "Full width, gradient overlay (black to dark grey), pulse animation on the 'Play' icon. Uses The Tracing Beam surface style."
+    },
+    {
+      "name": "UC Package Card",
+      "style": "Tactical Neumorphism - dark grey surface, sharp 1px border-white/10, hover lift (-translate-y-1) and primary border glow on active. Includes a graphic of UC/Gold coins."
+    },
+    {
+      "name": "Language Toggle",
+      "style": "Subtle top-right absolute positioning, small uppercase text with wide tracking."
+    }
+  ],
+  "motion": {
+    "interactions": [
+      "Hover states must increase contrast. Cards lift (-translate-y-1) and gain a subtle primary-colored drop shadow.",
+      "Pulse animation on primary CTAs (Watch Ad)."
+    ],
+    "transitions": "transition-transform 0.2s ease, opacity 0.2s ease (Never use transition-all).",
+    "accessibility": "Respect prefers-reduced-motion. Animations must not interfere with keyboard navigation."
+  },
+  "accessibility": {
+    "contrast": "Ensure APCA contrast ratio is met. Text on primary buttons must be black for readability against gold.",
+    "rtl": "MANDATORY: Support Arabic RTL. Use Tailwind's logical properties (ms-, me-, ps-, pe-, start, end) instead of physical properties (ml-, mr-, left, right). App MUST switch 'dir' attribute on HTML tag when changing languages."
+  },
+  "media": {
+    "icons": "lucide-react (already installed). Use sharp, distinct icons.",
+    "image_urls": [
+      {
+        "url": "https://images.pexels.com/photos/6125333/pexels-photo-6125333.jpeg",
+        "description": "Group of gamers intensely playing video games in a modern esports center.",
+        "category": "auth_background"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1624365169106-1f1f4cd65c91",
+        "description": "Gold coins",
+        "category": "rewards_icon"
+      },
+      {
+        "url": "https://images.pexels.com/photos/7080348/pexels-photo-7080348.jpeg",
+        "description": "Overhead shot of gold coins on a brown surface against a yellow background.",
+        "category": "referral_banner"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "IMPLEMENT DARK THEME ONLY. Do not build a light theme toggle. Force dark mode in Tailwind config and HTML class.",
+    "IMPLEMENT RTL (Right-to-Left) for Arabic. Use dir='rtl' on the root conditionally, and ALWAYS use Tailwind logical properties (e.g., ms-4 instead of ml-4, pe-2 instead of pr-2, border-s instead of border-l).",
+    "Typography: Use 'Bebas Neue' for headings/numbers and 'Manrope' for body text. Update index.css to import these from Google Fonts.",
+    "Use Shadcn UI but customize heavily: remove rounded corners (use rounded-sm for a tactical/sharp look).",
+    "Ensure the PWA feels native: hide scrollbars, add a fixed bottom navigation bar with Tactical Glassmorphism, and disable text selection (select-none) on UI elements.",
+    "All interactive elements MUST have a data-testid attribute in kebab-case (e.g., data-testid='watch-ad-button').",
+    "Do NOT use HTML-based components for advanced user interactions. Use Shadcn components."
+  ],
+  "universal_guidelines": [
+    "Do not center align the app container (.App { text-align: center; } is banned).",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Every interaction needs micro-animations - hover states, transitions, entrance animations. Static = dead.",
+    "Do not use universal transitions (transition: all). Use specific properties.",
+    "No AI assistant emoji characters for icons. Use lucide-react.",
+    "Use named exports for components, default exports for pages.",
+    "Use 'sonner' for toasts."
+  ]
+}
