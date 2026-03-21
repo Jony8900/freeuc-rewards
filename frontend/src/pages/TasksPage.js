@@ -59,10 +59,11 @@ export function TasksPage() {
     );
   }
 
-  const completedCount = tasks.filter(t => t.completed).length;
-  const claimedCount = tasks.filter(t => t.claimed).length;
-  const totalReward = tasks.reduce((sum, t) => sum + t.reward, 0);
-  const earnedReward = tasks.filter(t => t.claimed).reduce((sum, t) => sum + t.reward, 0);
+  const completedCount = tasks?.filter(t => t.completed)?.length || 0;
+  const claimedCount = tasks?.filter(t => t.claimed)?.length || 0;
+  const totalReward = tasks?.reduce((sum, t) => sum + (t.reward || 0), 0) || 0;
+  const earnedReward = tasks?.filter(t => t.claimed)?.reduce((sum, t) => sum + (t.reward || 0), 0) || 0;
+  const tasksLength = tasks?.length || 1; // Prevent division by zero
 
   return (
     <div className="min-h-screen bg-[#0A0A0C] pb-24 noise-bg">
@@ -83,13 +84,13 @@ export function TasksPage() {
               {language === 'ar' ? 'التقدم اليومي' : 'Daily Progress'}
             </span>
             <span className="text-[#F39C12] font-display text-lg">
-              {claimedCount}/{tasks.length}
+              {claimedCount}/{tasksLength}
             </span>
           </div>
           <div className="w-full h-2 bg-[#27272A] rounded-full overflow-hidden mb-3">
             <div 
               className="h-full bg-[#F39C12] transition-all duration-500"
-              style={{ width: `${(claimedCount / tasks.length) * 100}%` }}
+              style={{ width: `${(claimedCount / tasksLength) * 100}%` }}
             />
           </div>
           <div className="flex items-center justify-between text-sm">
@@ -104,7 +105,7 @@ export function TasksPage() {
 
         {/* Tasks List */}
         <div className="space-y-3">
-          {tasks.map((task) => {
+          {tasks && tasks.length > 0 ? tasks.map((task) => {
             const Icon = getTaskIcon(task.id);
             const progressPercent = Math.min((task.progress / task.target) * 100, 100);
             
@@ -191,7 +192,12 @@ export function TasksPage() {
                 </div>
               </div>
             );
-          })}
+          }) : (
+            <div className="bg-[#141419] border border-[#27272A] rounded-sm p-6 text-center">
+              <Target className="w-10 h-10 text-[#8A8A93] mx-auto mb-2" />
+              <p className="text-[#8A8A93]">{language === 'ar' ? 'جاري تحميل المهام...' : 'Loading tasks...'}</p>
+            </div>
+          )}
         </div>
 
         {/* Reset Timer */}
