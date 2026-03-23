@@ -75,6 +75,8 @@
 
 ## Prioritized Backlog
 
+- [x] Leaderboard (top 10 players, user rank display)
+
 ### P1 (High Priority)
 - [ ] Real ad network integration (Google AdSense/AdMob)
 - [ ] Push notifications

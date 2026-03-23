@@ -14,6 +14,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { AdminPage } from './pages/AdminPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { PackagesPage } from './pages/PackagesPage';
+import { LeaderboardPage } from './pages/LeaderboardPage';
 import { BottomNav } from './components/BottomNav';
 
 // Protected Route Component
@@ -111,6 +112,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppLayout>
               <ReferralsPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/leaderboard"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <LeaderboardPage />
             </AppLayout>
           </ProtectedRoute>
         }

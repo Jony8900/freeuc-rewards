@@ -2,17 +2,18 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Home, Gift, Coins, User, Users, Shield, Globe, Target } from 'lucide-react';
+import { Home, Gift, Coins, User, Users, Shield, Globe, Target, Trophy } from 'lucide-react';
 
 export function BottomNav() {
   const { t, toggleLanguage, language } = useLanguage();
   const { isAdmin } = useAuth();
+  const isRTL = language === 'ar';
 
   const navItems = [
     { path: '/', icon: Home, label: t('home') },
     { path: '/tasks', icon: Target, label: t('tasks') },
     { path: '/redeem', icon: Coins, label: t('redeem') },
-    { path: '/referrals', icon: Users, label: t('referrals') },
+    { path: '/leaderboard', icon: Trophy, label: isRTL ? 'المتصدرين' : 'Top' },
     { path: '/profile', icon: User, label: t('profile') },
   ];
 

@@ -335,6 +335,69 @@ async def get_level(user: dict = Depends(get_current_user)):
 
 # ============ POINTS & ADS ROUTES ============
 
+# ============ LEADERBOARD ============
+
+@api_router.get("/leaderboard")
+async def get_leaderboard():
+    """Public leaderboard - top 10 players by total earned"""
+    users = await db.users.find(
+        {"is_admin": {"$ne": True}},
+        {"_id": 0, "username": 1, "total_earned": 1, "ads_watched": 1, "id": 1}
+    ).sort("total_earned", -1).limit(10).to_list(10)
+    
+    leaderboard = []
+    for i, u in enumerate(users):
+        level_info = get_user_level(u.get("total_earned", 0))
+        leaderboard.append({
+            "rank": i + 1,
+            "username": u["username"],
+            "total_earned": u.get("total_earned", 0),
+            "ads_watched": u.get("ads_watched", 0),
+            "level": level_info["current"]["level"],
+            "level_name_ar": level_info["current"]["name_ar"],
+            "level_name_en": level_info["current"]["name_en"],
+            "level_color": level_info["current"]["color"],
+        })
+    
+    total_players = await db.users.count_documents({"is_admin": {"$ne": True}})
+    return {"leaderboard": leaderboard, "total_players": total_players}
+
+@api_router.get("/leaderboard/my-rank")
+async def get_my_rank(user: dict = Depends(get_current_user)):
+    """Get current user's rank"""
+    if user.get("is_admin"):
+        return {
+            "rank": 0,
+            "total_players": await db.users.count_documents({"is_admin": {"$ne": True}}),
+            "username": user["username"],
+            "total_earned": user.get("total_earned", 0),
+            "level": get_user_level(user.get("total_earned", 0))["current"]["level"],
+            "level_name_ar": get_user_level(user.get("total_earned", 0))["current"]["name_ar"],
+            "level_name_en": get_user_level(user.get("total_earned", 0))["current"]["name_en"],
+            "level_color": get_user_level(user.get("total_earned", 0))["current"]["color"],
+            "is_admin": True
+        }
+    user_earned = user.get("total_earned", 0)
+    rank = await db.users.count_documents({
+        "is_admin": {"$ne": True},
+        "total_earned": {"$gt": user_earned}
+    }) + 1
+    total_players = await db.users.count_documents({"is_admin": {"$ne": True}})
+    level_info = get_user_level(user_earned)
+    return {
+        "rank": rank,
+        "total_players": total_players,
+        "username": user["username"],
+        "total_earned": user_earned,
+        "level": level_info["current"]["level"],
+        "level_name_ar": level_info["current"]["name_ar"],
+        "level_name_en": level_info["current"]["name_en"],
+        "level_color": level_info["current"]["color"],
+        "is_admin": False
+    }
+
+# ============ ADS ROUTES ============
+
 @api_router.post("/ads/watch", response_model=WatchAdResponse)
 async def watch_ad(user: dict = Depends(get_current_user)):
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
