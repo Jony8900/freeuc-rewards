@@ -1,0 +1,21 @@
+{
+	"appId": "com.getfreeuc.app",
+	"appName": "GetFreeUC",
+	"webDir": "build",
+	"server": {
+		"androidScheme": "https",
+		"url": "https://getfreeuc.com",
+		"cleartext": false
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 2000,
+			"backgroundColor": "#0A0A0C",
+			"showSpinner": false
+		}
+	},
+	"android": {
+		"allowMixedContent": false,
+		"backgroundColor": "#0A0A0C"
+	}
+}
