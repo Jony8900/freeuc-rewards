@@ -40,7 +40,7 @@ export function ReferralsPage() {
     const message = t('shareMessage', { code: referralData?.referral_code });
     if (navigator.share) {
       navigator.share({
-        title: 'PUBG UC Rewards',
+        title: 'GetFreeUC',
         text: message,
       });
     } else {

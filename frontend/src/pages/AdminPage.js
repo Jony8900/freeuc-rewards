@@ -197,7 +197,7 @@ export function AdminPage() {
                       )}
                     </div>
                     <p className="text-[#8A8A93] text-sm">{u.email}</p>
-                    <p className="text-[#8A8A93] text-xs">PUBG: {u.pubg_id}</p>
+                    <p className="text-[#8A8A93] text-xs">ID: {u.pubg_id}</p>
                   </div>
                   <button
                     onClick={() => toggleAdmin(u.id)}
@@ -255,7 +255,7 @@ export function AdminPage() {
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <span className="text-white font-semibold">{r.username}</span>
-                        <p className="text-[#8A8A93] text-sm">PUBG: {r.pubg_id}</p>
+                        <p className="text-[#8A8A93] text-sm">ID: {r.pubg_id}</p>
                         <p className="text-[#F39C12] font-semibold">{r.package_name} ({r.uc_amount} UC)</p>
                         <p className="text-[#8A8A93] text-xs mt-1">
                           {new Date(r.created_at).toLocaleString()}

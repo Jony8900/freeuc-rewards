@@ -61,7 +61,7 @@ export function AuthPage() {
         <div className="text-center mb-8">
           <div className="inline-flex flex-col items-center gap-2 mb-4">
             <Logo size={72} />
-            <h1 className="font-display text-3xl text-white tracking-tight">Free UC Rewards</h1>
+            <h1 className="font-display text-3xl text-white tracking-tight">GetFreeUC</h1>
           </div>
           <p className="text-[#8A8A93] text-sm uppercase tracking-[0.2em]">
             {isRTL ? 'اربح UC مجاناً' : 'EARN FREE UC'}
@@ -122,7 +122,7 @@ export function AuthPage() {
                       value={formData.pubg_id}
                       onChange={handleChange}
                       required={!isLogin}
-                      data-testid="pubg-id-input"
+                      data-testid="player-id-input"
                       className="w-full bg-[#0A0A0C] border border-[#27272A] rounded-sm ps-11 pe-4 py-3 text-white focus:border-[#F39C12] transition-colors"
                     />
                   </div>
@@ -209,6 +209,11 @@ export function AuthPage() {
             </button>
           </p>
         </div>
+
+        {/* Disclaimer */}
+        <p className="text-center text-[#8A8A93]/60 text-xs mt-6 px-4">
+          {t('disclaimer')}
+        </p>
       </div>
     </div>
   );

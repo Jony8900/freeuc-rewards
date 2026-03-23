@@ -159,6 +159,30 @@ UC_PACKAGES = [
 POINTS_PER_AD = 10
 REFERRAL_BONUS = 200
 
+# ============ LEVELS SYSTEM ============
+
+LEVELS = [
+    {"level": 1, "name_ar": "مبتدئ", "name_en": "Beginner", "min_earned": 0, "multiplier": 1.0, "levelup_bonus": 0, "color": "#8A8A93"},
+    {"level": 2, "name_ar": "برونزي", "name_en": "Bronze", "min_earned": 5000, "multiplier": 1.2, "levelup_bonus": 500, "color": "#CD7F32"},
+    {"level": 3, "name_ar": "فضي", "name_en": "Silver", "min_earned": 25000, "multiplier": 1.5, "levelup_bonus": 1500, "color": "#C0C0C0"},
+    {"level": 4, "name_ar": "ذهبي", "name_en": "Gold", "min_earned": 100000, "multiplier": 2.0, "levelup_bonus": 5000, "color": "#FFD700"},
+    {"level": 5, "name_ar": "ماسي", "name_en": "Diamond", "min_earned": 500000, "multiplier": 3.0, "levelup_bonus": 15000, "color": "#B9F2FF"},
+]
+
+def get_user_level(total_earned: int) -> dict:
+    current_level = LEVELS[0]
+    for lvl in LEVELS:
+        if total_earned >= lvl["min_earned"]:
+            current_level = lvl
+    next_level = None
+    if current_level["level"] < 5:
+        next_level = LEVELS[current_level["level"]]
+    return {
+        "current": current_level,
+        "next": next_level,
+        "progress": 0 if not next_level else min(100, int((total_earned - current_level["min_earned"]) / (next_level["min_earned"] - current_level["min_earned"]) * 100))
+    }
+
 # Daily Tasks Configuration
 DAILY_TASKS = [
     {"id": "watch_3_ads", "name_ar": "شاهد 3 إعلانات", "name_en": "Watch 3 Ads", "target": 3, "type": "ads", "reward": 50},
@@ -288,6 +312,27 @@ async def change_password(
     
     return {"message": "تم تغيير كلمة المرور بنجاح"}
 
+# ============ LEVELS API ============
+
+@api_router.get("/user/level")
+async def get_level(user: dict = Depends(get_current_user)):
+    level_info = get_user_level(user.get("total_earned", 0))
+    return {
+        "level": level_info["current"]["level"],
+        "name_ar": level_info["current"]["name_ar"],
+        "name_en": level_info["current"]["name_en"],
+        "color": level_info["current"]["color"],
+        "multiplier": level_info["current"]["multiplier"],
+        "progress_to_next": level_info["progress"],
+        "next_level": {
+            "level": level_info["next"]["level"],
+            "name_ar": level_info["next"]["name_ar"],
+            "name_en": level_info["next"]["name_en"],
+            "min_earned": level_info["next"]["min_earned"],
+        } if level_info["next"] else None,
+        "all_levels": LEVELS
+    }
+
 # ============ POINTS & ADS ROUTES ============
 
 @api_router.post("/ads/watch", response_model=WatchAdResponse)
@@ -355,11 +400,27 @@ async def watch_ad(user: dict = Depends(get_current_user)):
     # Update hourly count
     hourly_ads[current_hour] = current_hour_ads + 1
     
+    # Calculate points with level multiplier
+    level_info = get_user_level(user.get("total_earned", 0))
+    multiplier = level_info["current"]["multiplier"]
+    actual_points = int(points_per_ad * multiplier)
+    
+    # Check for level up
+    old_level = level_info["current"]["level"]
+    new_total = user.get("total_earned", 0) + actual_points
+    new_level_info = get_user_level(new_total)
+    new_level = new_level_info["current"]["level"]
+    levelup_bonus = 0
+    if new_level > old_level:
+        levelup_bonus = new_level_info["current"]["levelup_bonus"]
+    
+    total_points_gain = actual_points + levelup_bonus
+    
     # Update user points and daily progress
     await db.users.update_one(
         {"id": user["id"]},
         {
-            "$inc": {"points": points_per_ad, "total_earned": points_per_ad, "ads_watched": 1},
+            "$inc": {"points": total_points_gain, "total_earned": total_points_gain, "ads_watched": 1},
             "$set": {"last_ad_time": datetime.now(timezone.utc).isoformat()}
         }
     )
@@ -377,13 +438,17 @@ async def watch_ad(user: dict = Depends(get_current_user)):
         upsert=True
     )
     
-    new_balance = user["points"] + points_per_ad
+    new_balance = user["points"] + total_points_gain
     ads_remaining = daily_limit - progress.get("ads_watched", 0) - 1
     
+    message = f"تم إضافة {actual_points} نقاط! متبقي {ads_remaining} إعلان اليوم"
+    if levelup_bonus > 0:
+        message = f"ترقية! مستوى {new_level}! +{levelup_bonus} بونص! +{actual_points} نقاط"
+    
     return WatchAdResponse(
-        points_earned=points_per_ad,
+        points_earned=total_points_gain,
         new_balance=new_balance,
-        message=f"تم إضافة {points_per_ad} نقاط! متبقي {ads_remaining} إعلان اليوم"
+        message=message
     )
 
 @api_router.get("/ads/status")
@@ -693,8 +758,8 @@ async def toggle_admin(user_id: str, admin: dict = Depends(get_admin_user)):
 # ============ APP SETTINGS ============
 
 DEFAULT_SETTINGS = {
-    "app_name": "Free UC Rewards",
-    "app_name_ar": "مكافآت UC المجانية",
+    "app_name": "GetFreeUC",
+    "app_name_ar": "احصل على UC مجاناً",
     "tagline": "EARN FREE UC",
     "tagline_ar": "اربح UC مجاناً",
     "primary_color": "#F39C12",
@@ -848,7 +913,7 @@ async def create_default_admin():
 
 @api_router.get("/")
 async def root():
-    return {"message": "PUBG UC Rewards API", "version": "1.0.0"}
+    return {"message": "GetFreeUC API", "version": "2.0.0"}
 
 app.include_router(api_router)
 

@@ -152,7 +152,7 @@ export function ProfilePage() {
               </div>
               <div>
                 <label className="block text-xs text-[#8A8A93] mb-2">
-                  {isRTL ? 'معرف PUBG' : 'PUBG ID'}
+                  {isRTL ? 'معرف اللاعب' : 'Player ID'}
                 </label>
                 <input
                   type="text"

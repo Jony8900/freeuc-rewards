@@ -4,7 +4,7 @@ import axios from 'axios';
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const defaultSettings = {
-  app_name: "Free UC Rewards",
+  app_name: "GetFreeUC",
   app_name_ar: "مكافآت UC المجانية",
   tagline: "EARN FREE UC",
   tagline_ar: "اربح UC مجاناً",

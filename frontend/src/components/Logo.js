@@ -106,7 +106,7 @@ export function LogoWithText({ size = 48, className = '' }) {
     <div className={`inline-flex items-center gap-3 ${className}`}>
       <Logo size={size} />
       <div>
-        <h1 className="font-display text-2xl text-white tracking-tight">Free UC</h1>
+        <h1 className="font-display text-2xl text-white tracking-tight">GetFreeUC</h1>
         <p className="text-[#F39C12] text-xs uppercase tracking-[0.2em]">Rewards</p>
       </div>
     </div>

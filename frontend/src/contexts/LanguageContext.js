@@ -18,7 +18,7 @@ const translations = {
     email: 'البريد الإلكتروني',
     password: 'كلمة المرور',
     username: 'اسم المستخدم',
-    pubgId: 'معرف PUBG',
+    pubgId: 'معرف اللاعب',
     referralCode: 'كود الإحالة (اختياري)',
     noAccount: 'ليس لديك حساب؟',
     hasAccount: 'لديك حساب بالفعل؟',
@@ -49,7 +49,7 @@ const translations = {
     referralBonus: 'احصل على {bonus} نقطة لكل صديق!',
     friendsReferred: 'الأصدقاء المُحالين',
     noReferrals: 'لم تقم بدعوة أي صديق بعد',
-    shareMessage: 'انضم إلى PUBG UC Rewards واربح UC مجاناً! استخدم كودي: {code}',
+    shareMessage: 'انضم إلى GetFreeUC واربح UC مجاناً! استخدم كودي: {code}',
     
     // Profile
     myProfile: 'ملفي الشخصي',
@@ -82,6 +82,11 @@ const translations = {
     error: 'حدث خطأ',
     success: 'تم بنجاح',
     language: 'EN',
+    disclaimer: 'هذا التطبيق مستقل وغير تابع أو مرتبط بأي شركة ألعاب',
+    level: 'المستوى',
+    levelBonus: 'بونص المستوى',
+    nextLevel: 'المستوى التالي',
+    multiplier: 'مضاعف النقاط',
   },
   en: {
     // Navigation
@@ -100,7 +105,7 @@ const translations = {
     email: 'Email',
     password: 'Password',
     username: 'Username',
-    pubgId: 'PUBG ID',
+    pubgId: 'Player ID',
     referralCode: 'Referral Code (optional)',
     noAccount: "Don't have an account?",
     hasAccount: 'Already have an account?',
@@ -131,7 +136,7 @@ const translations = {
     referralBonus: 'Get {bonus} points for each friend!',
     friendsReferred: 'Friends Referred',
     noReferrals: "You haven't invited any friends yet",
-    shareMessage: 'Join PUBG UC Rewards and earn free UC! Use my code: {code}',
+    shareMessage: 'Join GetFreeUC and earn free UC! Use my code: {code}',
     
     // Profile
     myProfile: 'My Profile',
@@ -164,6 +169,11 @@ const translations = {
     error: 'An error occurred',
     success: 'Success',
     language: 'AR',
+    disclaimer: 'This app is independent and not affiliated with any game company',
+    level: 'Level',
+    levelBonus: 'Level Bonus',
+    nextLevel: 'Next Level',
+    multiplier: 'Points Multiplier',
   }
 };
 

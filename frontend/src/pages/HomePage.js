@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Play, TrendingUp, Gift, Tv, Clock, AlertCircle } from 'lucide-react';
+import { Play, TrendingUp, Gift, Tv, Clock, AlertCircle, Star, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { Logo } from '../components/Logo';
@@ -15,6 +15,7 @@ export function HomePage() {
   const [adProgress, setAdProgress] = useState(0);
   const [adStatus, setAdStatus] = useState(null);
   const [cooldown, setCooldown] = useState(0);
+  const [levelInfo, setLevelInfo] = useState(null);
 
   const isRTL = language === 'ar';
 
@@ -28,10 +29,20 @@ export function HomePage() {
     }
   }, []);
 
+  const fetchLevel = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API}/user/level`);
+      setLevelInfo(response.data);
+    } catch (error) {
+      console.error('Failed to fetch level:', error);
+    }
+  }, []);
+
   useEffect(() => {
     refreshUser();
     fetchAdStatus();
-  }, [refreshUser, fetchAdStatus]);
+    fetchLevel();
+  }, [refreshUser, fetchAdStatus, fetchLevel]);
 
   // Cooldown timer
   useEffect(() => {
@@ -88,6 +99,7 @@ export function HomePage() {
       });
       toast.success(response.data.message);
       fetchAdStatus();
+      fetchLevel();
     } catch (error) {
       const message = error.response?.data?.detail || (isRTL ? 'حدث خطأ' : 'An error occurred');
       toast.error(message);
@@ -115,6 +127,48 @@ export function HomePage() {
           </div>
           <p className="text-center text-[#8A8A93] text-sm mt-2">{t('points')}</p>
         </div>
+
+        {/* Level Card */}
+        {levelInfo && (
+          <div className="bg-[#141419] border border-[#27272A] rounded-sm p-4 mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Star className="w-5 h-5" style={{ color: levelInfo.color }} />
+                <span className="text-white font-semibold">
+                  {isRTL ? levelInfo.name_ar : levelInfo.name_en}
+                </span>
+                <span className="text-xs px-2 py-0.5 rounded-sm" style={{ backgroundColor: levelInfo.color + '20', color: levelInfo.color }}>
+                  Lv.{levelInfo.level}
+                </span>
+              </div>
+              <span className="text-[#F39C12] text-sm font-display">
+                x{levelInfo.multiplier}
+              </span>
+            </div>
+            {levelInfo.next_level && (
+              <>
+                <div className="w-full h-2 bg-[#27272A] rounded-full overflow-hidden mb-2">
+                  <div 
+                    className="h-full transition-all duration-500 rounded-full"
+                    style={{ width: `${levelInfo.progress_to_next}%`, backgroundColor: levelInfo.color }}
+                  />
+                </div>
+                <div className="flex justify-between text-xs text-[#8A8A93]">
+                  <span className="flex items-center gap-1">
+                    <ChevronUp className="w-3 h-3" />
+                    {isRTL ? levelInfo.next_level.name_ar : levelInfo.next_level.name_en}
+                  </span>
+                  <span>{levelInfo.progress_to_next}%</span>
+                </div>
+              </>
+            )}
+            {!levelInfo.next_level && (
+              <p className="text-xs text-center" style={{ color: levelInfo.color }}>
+                {isRTL ? 'أعلى مستوى!' : 'Max Level!'}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-3 mb-6">
