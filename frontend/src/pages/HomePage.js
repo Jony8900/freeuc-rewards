@@ -5,6 +5,7 @@ import { Play, TrendingUp, Gift, Tv, Clock, AlertCircle, Star, ChevronUp } from 
 import { toast } from 'sonner';
 import axios from 'axios';
 import { Logo } from '../components/Logo';
+import { DailyBonusModal } from '../components/DailyBonusModal';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -16,6 +17,7 @@ export function HomePage() {
   const [adStatus, setAdStatus] = useState(null);
   const [cooldown, setCooldown] = useState(0);
   const [levelInfo, setLevelInfo] = useState(null);
+  const [showDailyBonus, setShowDailyBonus] = useState(false);
 
   const isRTL = language === 'ar';
 
@@ -38,11 +40,23 @@ export function HomePage() {
     }
   }, []);
 
+  const checkDailyBonus = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API}/daily-bonus/status`);
+      if (!res.data.already_claimed) {
+        setShowDailyBonus(true);
+      }
+    } catch (err) {
+      console.error('Failed to check daily bonus:', err);
+    }
+  }, []);
+
   useEffect(() => {
     refreshUser();
     fetchAdStatus();
     fetchLevel();
-  }, [refreshUser, fetchAdStatus, fetchLevel]);
+    checkDailyBonus();
+  }, [refreshUser, fetchAdStatus, fetchLevel, checkDailyBonus]);
 
   // Cooldown timer
   useEffect(() => {
@@ -113,7 +127,24 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0C] pb-24 noise-bg">
+      {/* Daily Bonus Modal */}
+      {showDailyBonus && (
+        <DailyBonusModal onClose={() => { setShowDailyBonus(false); refreshUser(); }} />
+      )}
+
       <div className="relative z-10 p-4">
+        {/* Daily Bonus Button */}
+        <button
+          onClick={() => setShowDailyBonus(true)}
+          data-testid="daily-bonus-btn"
+          className="w-full mb-4 py-2.5 rounded-sm bg-gradient-to-r from-[#F39C12]/20 to-[#E67E22]/20 border border-[#F39C12]/30 flex items-center justify-center gap-2 hover:from-[#F39C12]/30 hover:to-[#E67E22]/30 transition-all"
+        >
+          <Gift className="w-4 h-4 text-[#F39C12]" />
+          <span className="text-[#F39C12] text-sm font-semibold">
+            {isRTL ? 'المكافأة اليومية' : 'Daily Bonus'}
+          </span>
+        </button>
+
         {/* Points Balance Card */}
         <div className="bg-gradient-to-br from-[#141419] to-[#0A0A0C] border border-[#27272A] rounded-sm p-6 mb-6 tracing-beam">
           <p className="text-xs uppercase tracking-[0.2em] text-[#8A8A93] mb-2 text-center">

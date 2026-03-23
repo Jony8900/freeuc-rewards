@@ -335,6 +335,79 @@ async def get_level(user: dict = Depends(get_current_user)):
 
 # ============ POINTS & ADS ROUTES ============
 
+# ============ DAILY LOGIN BONUS ============
+
+DAILY_BONUS = [10, 20, 30, 50, 75, 100, 200]
+
+@api_router.get("/daily-bonus/status")
+async def daily_bonus_status(user: dict = Depends(get_current_user)):
+    """Check daily bonus status"""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    last_claim = user.get("last_bonus_date", "")
+    streak = user.get("login_streak", 0)
+    
+    # Check if already claimed today
+    already_claimed = (last_claim == today)
+    
+    # Check if streak is still valid (yesterday or today)
+    yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
+    if last_claim != yesterday and last_claim != today:
+        streak = 0
+    
+    current_day = min(streak, 6)  # 0-6 index
+    
+    return {
+        "already_claimed": already_claimed,
+        "streak": streak,
+        "current_day": current_day + 1,  # 1-7 display
+        "today_bonus": DAILY_BONUS[current_day] if not already_claimed else 0,
+        "next_bonus": DAILY_BONUS[min(current_day + 1, 6)] if already_claimed and streak < 7 else DAILY_BONUS[0] if streak >= 7 else DAILY_BONUS[current_day],
+        "bonuses": DAILY_BONUS,
+    }
+
+@api_router.post("/daily-bonus/claim")
+async def claim_daily_bonus(user: dict = Depends(get_current_user)):
+    """Claim daily login bonus"""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    last_claim = user.get("last_bonus_date", "")
+    streak = user.get("login_streak", 0)
+    
+    if last_claim == today:
+        raise HTTPException(status_code=400, detail="لقد استلمت مكافأة اليوم بالفعل!")
+    
+    # Calculate streak
+    yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
+    if last_claim == yesterday:
+        streak = streak + 1
+        if streak >= 7:
+            streak = 0  # Reset after day 7
+    else:
+        streak = 0  # Reset if missed a day
+    
+    bonus = DAILY_BONUS[min(streak, 6)]
+    
+    await db.users.update_one(
+        {"id": user["id"]},
+        {
+            "$inc": {"points": bonus, "total_earned": bonus},
+            "$set": {
+                "last_bonus_date": today,
+                "login_streak": streak + 1
+            }
+        }
+    )
+    
+    new_balance = user.get("points", 0) + bonus
+    day_num = streak + 1
+    
+    return {
+        "bonus": bonus,
+        "day": day_num,
+        "new_balance": new_balance,
+        "new_streak": streak + 1,
+        "message": f"مكافأة اليوم {day_num}: +{bonus} نقطة!"
+    }
+
 # ============ LEADERBOARD ============
 
 @api_router.get("/leaderboard")

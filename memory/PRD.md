@@ -76,6 +76,7 @@
 ## Prioritized Backlog
 
 - [x] Leaderboard (top 10 players, user rank display)
+- [x] Daily login bonus (7-day streak system, auto-popup)
 
 ### P1 (High Priority)
 - [ ] Real ad network integration (Google AdSense/AdMob)
