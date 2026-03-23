@@ -7,6 +7,9 @@
 - **App Type**: PWA (Progressive Web App) - Mobile-first
 - **Languages**: Arabic (RTL) / English
 - **Theme**: Dark gaming aesthetic (PUBG style)
+- **Live URL**: https://getfreeuc.com (also: www.getfreeuc.com, freeuc-rewards.vercel.app)
+- **Backend URL**: https://freeuc-rewards.onrender.com
+- **GitHub**: https://github.com/Jony8900/freeuc-rewards
 
 ## User Personas
 1. **PUBG Gamer (15-30 years)**: Primary user who wants free UC
@@ -21,7 +24,7 @@
 5. Admin Dashboard
 6. Arabic/English Language Support
 
-## What's Been Implemented ✅
+## What's Been Implemented
 ### Date: 2026-03-21
 - [x] User registration with username, email, password, PUBG ID
 - [x] User login with JWT authentication
@@ -47,11 +50,21 @@
 - [x] Gaming UI theme (dark, gold accents)
 - [x] Responsive mobile design
 
+### Date: 2026-03-23 - Deployment
+- [x] Frontend deployed to Vercel (freeuc-rewards.vercel.app)
+- [x] Backend deployed to Render (freeuc-rewards.onrender.com)
+- [x] MongoDB Atlas database connected
+- [x] Custom domain getfreeuc.com linked with DNS
+- [x] Fixed Vercel build issues (date-fns conflict, ajv module, CI=true, Node.js version)
+- [x] Cleaned requirements.txt for Render deployment
+
 ## Tech Stack
 - **Frontend**: React 19, Tailwind CSS, Lucide Icons, Sonner (toasts)
 - **Backend**: FastAPI, Motor (MongoDB async)
-- **Database**: MongoDB
+- **Database**: MongoDB Atlas
 - **Auth**: JWT (7 days expiration)
+- **Hosting**: Vercel (frontend), Render (backend)
+- **Domain**: getfreeuc.com (Namecheap)
 
 ## API Endpoints
 - `POST /api/auth/register` - User registration
@@ -68,10 +81,11 @@
 - `PUT /api/admin/redemptions/{id}` - Approve/reject
 - `PUT /api/admin/users/{id}/toggle-admin` - Toggle admin status
 
-## Prioritized Backlog
+## Admin Credentials
+- Email: admin@pubguc.com
+- Password: admin123
 
-### P0 (Critical) - Done ✅
-- All core features implemented
+## Prioritized Backlog
 
 ### P1 (High Priority) - Future
 - [ ] Real ad network integration (Google AdSense/AdMob)
@@ -83,16 +97,14 @@
 - [ ] Daily login bonus
 - [ ] Achievement badges
 - [ ] Social sharing integration
+- [ ] Compile PWA to APK using Capacitor
 
 ### P3 (Low Priority) - Future
 - [ ] Leaderboard
 - [ ] In-app games for bonus points
 - [ ] Dark/Light theme toggle
 
-## Admin Credentials
-- Email: admin@pubguc.com
-- Password: admin123
-
 ## Notes
 - Ads are SIMULATED (mock) - 5 second wait, no real ad network
 - UC delivery is manual (admin approves, then sends UC manually to PUBG ID)
+- Render free tier spins down after 15 min inactivity (~50s cold start)
