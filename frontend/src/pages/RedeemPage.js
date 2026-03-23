@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Coins, CheckCircle, Clock, XCircle, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { AdBanner } from '../components/AdsManager';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -178,6 +179,11 @@ export function RedeemPage() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* AdSense Banner */}
+        <div className="mt-4" data-testid="adsense-redeem-banner">
+          <AdBanner slot="auto" format="auto" />
         </div>
       </div>
     </div>

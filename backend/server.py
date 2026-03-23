@@ -923,7 +923,9 @@ DEFAULT_SETTINGS = {
     "admob_app_id": "",
     "admob_rewarded_id": "",
     "admob_interstitial_id": "",
-    "admob_banner_id": ""
+    "admob_banner_id": "",
+    "adsense_enabled": True,
+    "adsense_publisher_id": "ca-pub-4516179296800132"
 }
 
 @api_router.get("/settings")

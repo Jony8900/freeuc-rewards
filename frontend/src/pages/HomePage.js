@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { Logo } from '../components/Logo';
 import { DailyBonusModal } from '../components/DailyBonusModal';
+import { AdBanner } from '../components/AdsManager';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -331,6 +332,11 @@ export function HomePage() {
             </div>
           </div>
         )}
+
+        {/* AdSense Banner */}
+        <div className="mt-4" data-testid="adsense-home-banner">
+          <AdBanner slot="auto" format="auto" />
+        </div>
       </div>
     </div>
   );
