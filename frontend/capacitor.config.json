@@ -1,6 +1,6 @@
 {
-  "appId": "com.freeuc.rewards",
-  "appName": "Free UC Rewards",
+  "appId": "com.getfreeuc.app",
+  "appName": "GetFreeUC",
   "webDir": "build",
   "bundledWebRuntime": false,
   "server": {
