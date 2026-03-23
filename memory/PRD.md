@@ -1,62 +1,16 @@
-# PUBG UC Rewards - PRD (Product Requirements Document)
+# PUBG UC Rewards → GetFreeUC - PRD
 
 ## Original Problem Statement
-تطبيق مكافآت PUBG UC حيث يشاهد المستخدمون الإعلانات ويربحون نقاط يمكن استبدالها بـ UC (عملة اللعبة).
+تطبيق مكافآت UC حيث يشاهد المستخدمون الإعلانات ويربحون نقاط يمكن استبدالها بـ UC (عملة اللعبة).
 
 ## Project Overview
+- **App Name**: GetFreeUC
 - **App Type**: PWA (Progressive Web App) - Mobile-first
 - **Languages**: Arabic (RTL) / English
-- **Theme**: Dark gaming aesthetic (PUBG style)
+- **Theme**: Dark gaming aesthetic
 - **Live URL**: https://getfreeuc.com (also: www.getfreeuc.com, freeuc-rewards.vercel.app)
 - **Backend URL**: https://freeuc-rewards.onrender.com
 - **GitHub**: https://github.com/Jony8900/freeuc-rewards
-
-## User Personas
-1. **PUBG Gamer (15-30 years)**: Primary user who wants free UC
-2. **Referrer**: User who invites friends to earn bonus points
-3. **Admin**: Manages users and redemption requests
-
-## Core Requirements (Static)
-1. User Authentication (Register/Login)
-2. Points System (Watch ads = earn points)
-3. UC Packages Redemption
-4. Referral System (50 points per referral)
-5. Admin Dashboard
-6. Arabic/English Language Support
-
-## What's Been Implemented
-### Date: 2026-03-21
-- [x] User registration with username, email, password, PUBG ID
-- [x] User login with JWT authentication
-- [x] Points balance display with gold glow effect
-- [x] Watch ad simulation (5 seconds = 5 points)
-- [x] Statistics cards (Total Earned, Total Redeemed, Ads Watched)
-- [x] 6 UC packages (60, 325, 660, 1800, 3850, 8100 UC)
-- [x] Redemption system (creates pending request, deducts points)
-- [x] Redemption history with status badges
-- [x] Referral code generation
-- [x] Copy & share referral code
-- [x] Friends referred list
-- [x] 50 points bonus for referral (both referrer and referee)
-- [x] Profile page with user info
-- [x] Logout functionality
-- [x] Admin dashboard with stats
-- [x] Admin users management
-- [x] Admin redemptions management (approve/reject)
-- [x] Admin toggle for users
-- [x] Language toggle (AR/EN)
-- [x] RTL support for Arabic
-- [x] Bottom navigation bar
-- [x] Gaming UI theme (dark, gold accents)
-- [x] Responsive mobile design
-
-### Date: 2026-03-23 - Deployment
-- [x] Frontend deployed to Vercel (freeuc-rewards.vercel.app)
-- [x] Backend deployed to Render (freeuc-rewards.onrender.com)
-- [x] MongoDB Atlas database connected
-- [x] Custom domain getfreeuc.com linked with DNS
-- [x] Fixed Vercel build issues (date-fns conflict, ajv module, CI=true, Node.js version)
-- [x] Cleaned requirements.txt for Render deployment
 
 ## Tech Stack
 - **Frontend**: React 19, Tailwind CSS, Lucide Icons, Sonner (toasts)
@@ -66,45 +20,78 @@
 - **Hosting**: Vercel (frontend), Render (backend)
 - **Domain**: getfreeuc.com (Namecheap)
 
+## What's Been Implemented
+
+### Phase 1 - Core App (2026-03-21)
+- [x] User registration/login with JWT auth
+- [x] Points system (watch ads = earn points)
+- [x] 6 UC packages (60-8100 UC) with redemption
+- [x] Referral system (50 points bonus)
+- [x] Admin dashboard (users, redemptions, settings)
+- [x] Arabic/English language support with RTL
+- [x] Daily tasks system
+- [x] Ad simulation (mock - 5 second wait)
+- [x] PWA configuration
+- [x] Capacitor config for future APK
+
+### Phase 2 - Deployment (2026-03-23)
+- [x] Frontend deployed to Vercel
+- [x] Backend deployed to Render
+- [x] MongoDB Atlas database connected
+- [x] Custom domain getfreeuc.com linked with DNS (Namecheap)
+- [x] Fixed Vercel build issues (date-fns, ajv, CI=true, Node.js v24)
+
+### Phase 3 - Rebranding & Levels (2026-03-23)
+- [x] Removed all PUBG references (legal safety)
+- [x] Rebranded to "GetFreeUC"
+- [x] Changed "PUBG ID" → "Player ID / معرف اللاعب"
+- [x] Added legal disclaimer
+- [x] Levels system: 5 levels (Beginner→Bronze→Silver→Gold→Diamond)
+- [x] Point multipliers per level (x1→x1.2→x1.5→x2→x3)
+- [x] Level-up bonuses (500→1500→5000→15000 points)
+- [x] Level progress bar on homepage
+
 ## API Endpoints
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `GET /api/auth/me` - Get current user
-- `POST /api/ads/watch` - Watch ad and earn points
-- `GET /api/packages` - Get UC packages
-- `POST /api/redeem` - Redeem UC package
-- `GET /api/redemptions/my` - User's redemption history
-- `GET /api/referrals` - Referral info and friends list
-- `GET /api/admin/stats` - Admin statistics
-- `GET /api/admin/users` - All users
-- `GET /api/admin/redemptions` - All redemptions
-- `PUT /api/admin/redemptions/{id}` - Approve/reject
-- `PUT /api/admin/users/{id}/toggle-admin` - Toggle admin status
+- `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`
+- `POST /api/ads/watch`, `GET /api/ads/status`
+- `GET /api/user/level` ← NEW
+- `GET /api/packages`, `POST /api/redeem`, `GET /api/redemptions/my`
+- `GET /api/referrals`
+- `GET /api/admin/stats`, `GET /api/admin/users`, `GET /api/admin/redemptions`
+- `PUT /api/admin/redemptions/{id}`, `PUT /api/admin/users/{id}/toggle-admin`
 
 ## Admin Credentials
 - Email: admin@pubguc.com
 - Password: admin123
 
+## Levels System
+| Level | Name AR | Name EN | Min Earned | Multiplier | Level-up Bonus |
+|-------|---------|---------|-----------|------------|----------------|
+| 1 | مبتدئ | Beginner | 0 | x1.0 | 0 |
+| 2 | برونزي | Bronze | 5,000 | x1.2 | 500 |
+| 3 | فضي | Silver | 25,000 | x1.5 | 1,500 |
+| 4 | ذهبي | Gold | 100,000 | x2.0 | 5,000 |
+| 5 | ماسي | Diamond | 500,000 | x3.0 | 15,000 |
+
 ## Prioritized Backlog
 
-### P1 (High Priority) - Future
+### P1 (High Priority)
 - [ ] Real ad network integration (Google AdSense/AdMob)
-- [ ] Payment gateway for direct UC purchase
 - [ ] Push notifications
 
-### P2 (Medium Priority) - Future
-- [ ] User profile picture
+### P2 (Medium Priority)
 - [ ] Daily login bonus
 - [ ] Achievement badges
-- [ ] Social sharing integration
 - [ ] Compile PWA to APK using Capacitor
-
-### P3 (Low Priority) - Future
 - [ ] Leaderboard
-- [ ] In-app games for bonus points
+
+### P3 (Low Priority)
+- [ ] In-app mini games for bonus points
+- [ ] Social sharing improvements
 - [ ] Dark/Light theme toggle
 
-## Notes
-- Ads are SIMULATED (mock) - 5 second wait, no real ad network
-- UC delivery is manual (admin approves, then sends UC manually to PUBG ID)
-- Render free tier spins down after 15 min inactivity (~50s cold start)
+## Important Notes
+- Ads are SIMULATED (mock) - not real ad network
+- UC delivery is manual (admin approves, then sends UC to player)
+- Render free tier sleeps after 15 min inactivity (~50s cold start)
+- No PUBG trademarks used - legally safe
