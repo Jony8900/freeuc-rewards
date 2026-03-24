@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Eye, EyeOff, Gamepad2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Logo } from '../components/Logo';
+import { Link } from 'react-router-dom';
 
 export function AuthPage() {
   const { t, isRTL } = useLanguage();
@@ -168,6 +169,18 @@ export function AuthPage() {
                 </button>
               </div>
             </div>
+
+            {isLogin && (
+              <div className="text-end mt-1">
+                <Link
+                  to="/forgot-password"
+                  data-testid="forgot-password-link"
+                  className="text-[#F39C12] hover:underline text-xs"
+                >
+                  {t('forgotPassword')}
+                </Link>
+              </div>
+            )}
 
             {!isLogin && (
               <div>

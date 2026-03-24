@@ -5,6 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
+import asyncio
 from pathlib import Path
 from pydantic import BaseModel, Field, EmailStr
 from typing import List, Optional
@@ -13,6 +14,7 @@ from datetime import datetime, timezone, timedelta
 import jwt
 import bcrypt
 import secrets
+import resend
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -26,6 +28,11 @@ db = client[os.environ['DB_NAME']]
 JWT_SECRET = os.environ.get('JWT_SECRET', secrets.token_hex(32))
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24 * 7  # 7 days
+
+# Resend email config
+resend.api_key = os.environ.get('RESEND_API_KEY', '')
+SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', '')
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -97,6 +104,13 @@ class Redemption(BaseModel):
 
 class AdminUpdateRedemption(BaseModel):
     status: str  # approved, rejected
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
 
 class AdminStats(BaseModel):
     total_users: int
@@ -309,6 +323,93 @@ async def change_password(
     # Update password
     new_hashed = hash_password(new_password)
     await db.users.update_one({"id": user["id"]}, {"$set": {"password": new_hashed}})
+    
+    return {"message": "تم تغيير كلمة المرور بنجاح"}
+
+# ============ FORGOT PASSWORD ============
+
+@api_router.post("/auth/forgot-password")
+async def forgot_password(data: ForgotPasswordRequest):
+    user = await db.users.find_one({"email": data.email}, {"_id": 0})
+    # Always return success to prevent email enumeration
+    if not user:
+        return {"message": "إذا كان البريد الإلكتروني مسجلاً، ستصلك رسالة لإعادة تعيين كلمة المرور"}
+    
+    # Generate reset token
+    reset_token = secrets.token_urlsafe(32)
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+    
+    # Store token in DB
+    await db.password_resets.delete_many({"user_id": user["id"]})
+    await db.password_resets.insert_one({
+        "user_id": user["id"],
+        "token": reset_token,
+        "expires_at": expires_at.isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Build reset link
+    reset_link = f"{FRONTEND_URL}/reset-password?token={reset_token}"
+    
+    # Send email via Resend
+    html_content = f"""
+    <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0A0A0C; padding: 40px 20px; border-radius: 8px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #F39C12; font-size: 28px; margin: 0;">GetFreeUC</h1>
+            <p style="color: #8A8A93; font-size: 14px; margin-top: 5px;">إعادة تعيين كلمة المرور</p>
+        </div>
+        <div style="background-color: #141419; border: 1px solid #27272A; border-radius: 8px; padding: 30px;">
+            <p style="color: #ffffff; font-size: 16px; margin-bottom: 20px;">مرحباً {user.get('username', '')},</p>
+            <p style="color: #8A8A93; font-size: 14px; line-height: 1.8;">لقد طلبت إعادة تعيين كلمة المرور الخاصة بك. اضغط على الزر أدناه لتعيين كلمة مرور جديدة:</p>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{reset_link}" style="background-color: #F39C12; color: #000000; padding: 14px 40px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 16px; display: inline-block;">إعادة تعيين كلمة المرور</a>
+            </div>
+            <p style="color: #8A8A93; font-size: 12px; line-height: 1.8;">هذا الرابط صالح لمدة ساعة واحدة فقط. إذا لم تطلب إعادة تعيين كلمة المرور، يمكنك تجاهل هذا البريد.</p>
+        </div>
+        <p style="color: #8A8A93; font-size: 11px; text-align: center; margin-top: 20px;">GetFreeUC - اربح UC مجاناً</p>
+    </div>
+    """
+    
+    try:
+        params = {
+            "from": SENDER_EMAIL,
+            "to": [data.email],
+            "subject": "إعادة تعيين كلمة المرور - GetFreeUC",
+            "html": html_content
+        }
+        await asyncio.to_thread(resend.Emails.send, params)
+        logger.info(f"Password reset email sent to {data.email}")
+    except Exception as e:
+        logger.error(f"Failed to send reset email: {str(e)}")
+        raise HTTPException(status_code=500, detail="فشل إرسال البريد الإلكتروني")
+    
+    return {"message": "إذا كان البريد الإلكتروني مسجلاً، ستصلك رسالة لإعادة تعيين كلمة المرور"}
+
+@api_router.post("/auth/reset-password")
+async def reset_password(data: ResetPasswordRequest):
+    # Find the reset token
+    reset_record = await db.password_resets.find_one({"token": data.token}, {"_id": 0})
+    if not reset_record:
+        raise HTTPException(status_code=400, detail="رابط إعادة التعيين غير صالح أو منتهي الصلاحية")
+    
+    # Check if token is expired
+    expires_at = datetime.fromisoformat(reset_record["expires_at"])
+    if datetime.now(timezone.utc) > expires_at:
+        await db.password_resets.delete_one({"token": data.token})
+        raise HTTPException(status_code=400, detail="رابط إعادة التعيين منتهي الصلاحية")
+    
+    if len(data.new_password) < 6:
+        raise HTTPException(status_code=400, detail="كلمة المرور يجب أن تكون 6 أحرف على الأقل")
+    
+    # Update password
+    new_hashed = hash_password(data.new_password)
+    await db.users.update_one(
+        {"id": reset_record["user_id"]},
+        {"$set": {"password": new_hashed}}
+    )
+    
+    # Delete used token
+    await db.password_resets.delete_many({"user_id": reset_record["user_id"]})
     
     return {"message": "تم تغيير كلمة المرور بنجاح"}
 

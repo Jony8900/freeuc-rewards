@@ -6,6 +6,8 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SettingsProvider } from './contexts/SettingsContext';
 import { AuthPage } from './pages/AuthPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { HomePage } from './pages/HomePage';
 import { TasksPage } from './pages/TasksPage';
 import { RedeemPage } from './pages/RedeemPage';
@@ -74,6 +76,20 @@ function AppRoutes() {
           <AuthRoute>
             <AuthPage />
           </AuthRoute>
+        }
+      />
+      <Route
+        path="/forgot-password"
+        element={
+          <AuthRoute>
+            <ForgotPasswordPage />
+          </AuthRoute>
+        }
+      />
+      <Route
+        path="/reset-password"
+        element={
+          <ResetPasswordPage />
         }
       />
       <Route
