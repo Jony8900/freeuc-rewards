@@ -1,4 +1,4 @@
-# PUBG UC Rewards → GetFreeUC - PRD
+# GetFreeUC - PRD
 
 ## Original Problem Statement
 تطبيق مكافآت UC حيث يشاهد المستخدمون الإعلانات ويربحون نقاط يمكن استبدالها بـ UC (عملة اللعبة).
@@ -14,11 +14,12 @@
 
 ## Tech Stack
 - **Frontend**: React 19, Tailwind CSS, Lucide Icons, Sonner (toasts)
-- **Backend**: FastAPI, Motor (MongoDB async)
+- **Backend**: FastAPI, Motor (MongoDB async), Resend (email)
 - **Database**: MongoDB Atlas
 - **Auth**: JWT (7 days expiration)
 - **Hosting**: Vercel (frontend), Render (backend)
 - **Domain**: getfreeuc.com (Namecheap)
+- **Email**: Resend (password reset emails)
 
 ## What's Been Implemented
 
@@ -44,19 +45,37 @@
 ### Phase 3 - Rebranding & Levels (2026-03-23)
 - [x] Removed all PUBG references (legal safety)
 - [x] Rebranded to "GetFreeUC"
-- [x] Changed "PUBG ID" → "Player ID / معرف اللاعب"
-- [x] Added legal disclaimer
-- [x] Levels system: 5 levels (Beginner→Bronze→Silver→Gold→Diamond)
-- [x] Point multipliers per level (x1→x1.2→x1.5→x2→x3)
-- [x] Level-up bonuses (500→1500→5000→15000 points)
+- [x] Levels system: 5 levels (Beginner to Diamond)
+- [x] Point multipliers per level (x1 to x3)
+- [x] Level-up bonuses (500 to 15000 points)
 - [x] Level progress bar on homepage
+
+### Phase 4 - Engagement & Monetization (2026-03-23)
+- [x] Leaderboard (top 10 players, user rank display)
+- [x] Daily login bonus (7-day streak system, auto-popup)
+- [x] Google AdSense integration (Publisher ID + ads.txt)
+
+### Phase 5 - Forgot Password (2026-03-24)
+- [x] Forgot Password page with email input
+- [x] Reset Password page with new password + confirmation
+- [x] Backend API: POST /api/auth/forgot-password
+- [x] Backend API: POST /api/auth/reset-password
+- [x] Resend email integration for password reset emails
+- [x] Token-based reset with 1-hour expiry
+- [x] Email enumeration prevention
+- [x] Arabic/English translations for all new UI
+- [x] "Forgot Password?" link on login page
 
 ## API Endpoints
 - `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`
+- `POST /api/auth/forgot-password` (NEW)
+- `POST /api/auth/reset-password` (NEW)
 - `POST /api/ads/watch`, `GET /api/ads/status`
-- `GET /api/user/level` ← NEW
+- `GET /api/user/level`
 - `GET /api/packages`, `POST /api/redeem`, `GET /api/redemptions/my`
 - `GET /api/referrals`
+- `GET /api/leaderboard`, `GET /api/leaderboard/my-rank`
+- `GET /api/bonus/status`, `POST /api/bonus/claim`
 - `GET /api/admin/stats`, `GET /api/admin/users`, `GET /api/admin/redemptions`
 - `PUT /api/admin/redemptions/{id}`, `PUT /api/admin/users/{id}/toggle-admin`
 
@@ -75,21 +94,18 @@
 
 ## Prioritized Backlog
 
-- [x] Leaderboard (top 10 players, user rank display)
-- [x] Daily login bonus (7-day streak system, auto-popup)
-
 ### P1 (High Priority)
-- [ ] Real ad network integration (Google AdSense/AdMob)
+- [ ] Verify Resend domain for production email sending
+- [ ] Guide user to redeploy frontend on Vercel (ads.txt live)
+- [ ] Real ad network verification (Google AdSense pending)
 - [ ] Push notifications
 
 ### P2 (Medium Priority)
-- [ ] Daily login bonus
-- [ ] Achievement badges
-- [ ] Compile PWA to APK using Capacitor
-- [ ] Leaderboard
+- [ ] Achievement badges system
+- [ ] Complete Android App Bundle (AAB) for Play Store
+- [ ] In-app mini games for bonus points
 
 ### P3 (Low Priority)
-- [ ] In-app mini games for bonus points
 - [ ] Social sharing improvements
 - [ ] Dark/Light theme toggle
 
@@ -98,3 +114,4 @@
 - UC delivery is manual (admin approves, then sends UC to player)
 - Render free tier sleeps after 15 min inactivity (~50s cold start)
 - No PUBG trademarks used - legally safe
+- Resend is in TEST MODE: can only send to verified email (john_y98@hotmail.com). User needs to verify domain on resend.com/domains for production use
