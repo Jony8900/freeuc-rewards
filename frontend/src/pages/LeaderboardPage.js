@@ -114,11 +114,18 @@ export function LeaderboardPage() {
             {/* Player Info */}
             <div className="flex-1 min-w-0">
               <p className="text-white text-sm font-semibold truncate">{player.username}</p>
-              <div className="flex items-center gap-1">
-                <Star className="w-3 h-3" style={{ color: player.level_color }} />
-                <span className="text-xs" style={{ color: player.level_color }}>
-                  {isRTL ? player.level_name_ar : player.level_name_en}
-                </span>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
+                  <Star className="w-3 h-3" style={{ color: player.level_color }} />
+                  <span className="text-xs" style={{ color: player.level_color }}>
+                    {isRTL ? player.level_name_ar : player.level_name_en}
+                  </span>
+                </div>
+                {player.pubg_id && (
+                  <span className="text-[#8A8A93] text-xs">
+                    ID: {player.pubg_id}
+                  </span>
+                )}
               </div>
             </div>
 

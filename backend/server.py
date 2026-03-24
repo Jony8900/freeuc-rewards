@@ -516,7 +516,7 @@ async def get_leaderboard():
     """Public leaderboard - top 10 players by total earned"""
     users = await db.users.find(
         {"is_admin": {"$ne": True}},
-        {"_id": 0, "username": 1, "total_earned": 1, "ads_watched": 1, "id": 1}
+        {"_id": 0, "username": 1, "total_earned": 1, "ads_watched": 1, "id": 1, "pubg_id": 1}
     ).sort("total_earned", -1).limit(10).to_list(10)
     
     leaderboard = []
@@ -525,6 +525,7 @@ async def get_leaderboard():
         leaderboard.append({
             "rank": i + 1,
             "username": u["username"],
+            "pubg_id": u.get("pubg_id", ""),
             "total_earned": u.get("total_earned", 0),
             "ads_watched": u.get("ads_watched", 0),
             "level": level_info["current"]["level"],
