@@ -8,6 +8,7 @@ import { SettingsProvider } from './contexts/SettingsContext';
 import { AuthPage } from './pages/AuthPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { HomePage } from './pages/HomePage';
 import { TasksPage } from './pages/TasksPage';
 import { RedeemPage } from './pages/RedeemPage';
@@ -90,6 +91,12 @@ function AppRoutes() {
         path="/reset-password"
         element={
           <ResetPasswordPage />
+        }
+      />
+      <Route
+        path="/privacy-policy"
+        element={
+          <PrivacyPolicyPage />
         }
       />
       <Route
