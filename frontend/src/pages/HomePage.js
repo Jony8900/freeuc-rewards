@@ -337,6 +337,19 @@ export function HomePage() {
         <div className="mt-4" data-testid="adsense-home-banner">
           <AdBanner slot="auto" format="auto" />
         </div>
+
+        {/* Footer Links */}
+        <div className="mt-6 mb-4 border-t border-[#27272A] pt-4">
+          <div className="flex flex-wrap justify-center gap-3 text-xs text-[#8A8A93]">
+            <a href="/about" className="hover:text-[#F39C12] transition-colors">{isRTL ? 'حول التطبيق' : 'About'}</a>
+            <span>|</span>
+            <a href="/faq" className="hover:text-[#F39C12] transition-colors">{isRTL ? 'الأسئلة الشائعة' : 'FAQ'}</a>
+            <span>|</span>
+            <a href="/guides" className="hover:text-[#F39C12] transition-colors">{isRTL ? 'الأدلة' : 'Guides'}</a>
+            <span>|</span>
+            <a href="/privacy-policy" className="hover:text-[#F39C12] transition-colors">{isRTL ? 'الخصوصية' : 'Privacy'}</a>
+          </div>
+        </div>
       </div>
     </div>
   );

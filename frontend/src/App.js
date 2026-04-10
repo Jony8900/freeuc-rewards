@@ -9,6 +9,9 @@ import { AuthPage } from './pages/AuthPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
+import { AboutPage } from './pages/AboutPage';
+import { FAQPage } from './pages/FAQPage';
+import { GuidesPage } from './pages/GuidesPage';
 import { HomePage } from './pages/HomePage';
 import { TasksPage } from './pages/TasksPage';
 import { RedeemPage } from './pages/RedeemPage';
@@ -97,6 +100,24 @@ function AppRoutes() {
         path="/privacy-policy"
         element={
           <PrivacyPolicyPage />
+        }
+      />
+      <Route
+        path="/about"
+        element={
+          <AboutPage />
+        }
+      />
+      <Route
+        path="/faq"
+        element={
+          <FAQPage />
+        }
+      />
+      <Route
+        path="/guides"
+        element={
+          <GuidesPage />
         }
       />
       <Route
