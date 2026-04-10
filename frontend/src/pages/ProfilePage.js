@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
-import { User, Gamepad2, Calendar, LogOut, Coins, TrendingUp, Gift, Shield, Edit2, Lock, Save, X, Eye, EyeOff } from 'lucide-react';
+import { User, Gamepad2, Calendar, LogOut, Coins, TrendingUp, Gift, Shield, Edit2, Lock, Save, X, Eye, EyeOff, Info, HelpCircle, BookOpen, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -345,14 +346,36 @@ export function ProfilePage() {
 
         {/* Logout Button */}
         {!editMode && !showPasswordForm && (
-          <button
-            onClick={logout}
-            data-testid="logout-btn"
-            className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 py-4 rounded-sm uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-2 transition-colors"
-          >
-            <LogOut className="w-5 h-5" />
-            {t('logout')}
-          </button>
+          <>
+            {/* Quick Links */}
+            <div className="mb-4 bg-[#141419] border border-[#27272A] rounded-sm overflow-hidden">
+              <Link to="/about" className="flex items-center gap-3 p-3 hover:bg-[#1a1a20] transition-colors border-b border-[#27272A]" data-testid="profile-about-link">
+                <Info className="w-5 h-5 text-[#F39C12]" />
+                <span className="text-white text-sm">{isRTL ? 'حول التطبيق' : 'About'}</span>
+              </Link>
+              <Link to="/faq" className="flex items-center gap-3 p-3 hover:bg-[#1a1a20] transition-colors border-b border-[#27272A]" data-testid="profile-faq-link">
+                <HelpCircle className="w-5 h-5 text-[#F39C12]" />
+                <span className="text-white text-sm">{isRTL ? 'الأسئلة الشائعة' : 'FAQ'}</span>
+              </Link>
+              <Link to="/guides" className="flex items-center gap-3 p-3 hover:bg-[#1a1a20] transition-colors border-b border-[#27272A]" data-testid="profile-guides-link">
+                <BookOpen className="w-5 h-5 text-[#F39C12]" />
+                <span className="text-white text-sm">{isRTL ? 'الأدلة والنصائح' : 'Guides & Tips'}</span>
+              </Link>
+              <Link to="/privacy-policy" className="flex items-center gap-3 p-3 hover:bg-[#1a1a20] transition-colors" data-testid="profile-privacy-link">
+                <FileText className="w-5 h-5 text-[#F39C12]" />
+                <span className="text-white text-sm">{isRTL ? 'سياسة الخصوصية' : 'Privacy Policy'}</span>
+              </Link>
+            </div>
+
+            <button
+              onClick={logout}
+              data-testid="logout-btn"
+              className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 py-4 rounded-sm uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-2 transition-colors"
+            >
+              <LogOut className="w-5 h-5" />
+              {t('logout')}
+            </button>
+          </>
         )}
       </div>
     </div>
