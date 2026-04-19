@@ -2,6 +2,7 @@ import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, BookOpen, Zap, Trophy, Calendar, Users, Star } from 'lucide-react';
+import { AdBanner } from '../components/AdsManager';
 
 export function GuidesPage() {
   const { language } = useLanguage();
@@ -190,6 +191,10 @@ export function GuidesPage() {
               </>
             )}
           </div>
+        </div>
+
+        <div className="mt-4">
+          <AdBanner slot="auto" format="auto" />
         </div>
       </div>
     </div>

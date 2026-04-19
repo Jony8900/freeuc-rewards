@@ -3,6 +3,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Info, Target, Gift, Shield, Users, TrendingUp } from 'lucide-react';
 import { Logo } from '../components/Logo';
+import { AdBanner } from '../components/AdsManager';
 
 export function AboutPage() {
   const { language } = useLanguage();
@@ -113,6 +114,10 @@ export function AboutPage() {
           <p className="text-[#8A8A93]/60 text-xs">
             {isRTL ? 'هذا التطبيق مستقل وغير تابع أو مرتبط بأي شركة ألعاب' : 'This app is independent and not affiliated with any game company'}
           </p>
+        </div>
+
+        <div className="mt-4">
+          <AdBanner slot="auto" format="auto" />
         </div>
       </div>
     </div>

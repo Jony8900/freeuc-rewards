@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { AdBanner } from '../components/AdsManager';
 
 const faqData = {
   ar: [
@@ -85,6 +86,10 @@ export function FAQPage() {
           <a href="mailto:support@getfreeuc.com" className="text-[#F39C12] hover:underline text-sm font-semibold">
             {isRTL ? 'تواصل معنا: support@getfreeuc.com' : 'Contact us: support@getfreeuc.com'}
           </a>
+        </div>
+
+        <div className="mt-4">
+          <AdBanner slot="auto" format="auto" />
         </div>
       </div>
     </div>
