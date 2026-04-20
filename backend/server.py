@@ -413,6 +413,19 @@ async def reset_password(data: ResetPasswordRequest):
     
     return {"message": "تم تغيير كلمة المرور بنجاح"}
 
+# ============ DELETE ACCOUNT ============
+
+@api_router.delete("/auth/delete-account")
+async def delete_account(user: dict = Depends(get_current_user)):
+    user_id = user["id"]
+    
+    # Delete all user data
+    await db.users.delete_one({"id": user_id})
+    await db.redemptions.delete_many({"user_id": user_id})
+    await db.password_resets.delete_many({"user_id": user_id})
+    
+    return {"message": "تم حذف الحساب بنجاح"}
+
 # ============ LEVELS API ============
 
 @api_router.get("/user/level")

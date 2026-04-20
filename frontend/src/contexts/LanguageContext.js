@@ -103,6 +103,10 @@ const translations = {
     resetSuccess: 'تم تغيير كلمة المرور بنجاح! يمكنك تسجيل الدخول الآن',
     backToLogin: 'العودة لتسجيل الدخول',
     invalidResetLink: 'رابط إعادة التعيين غير صالح',
+    deleteAccount: 'حذف الحساب',
+    deleteAccountConfirm: 'هل أنت متأكد من حذف حسابك؟ هذا الإجراء لا يمكن التراجع عنه.',
+    deleteAccountSuccess: 'تم حذف الحساب بنجاح',
+    deleting: 'جاري الحذف...',
   },
   en: {
     // Navigation
@@ -206,6 +210,10 @@ const translations = {
     resetSuccess: 'Password changed successfully! You can now log in',
     backToLogin: 'Back to Login',
     invalidResetLink: 'Invalid reset link',
+    deleteAccount: 'Delete Account',
+    deleteAccountConfirm: 'Are you sure you want to delete your account? This action cannot be undone.',
+    deleteAccountSuccess: 'Account deleted successfully',
+    deleting: 'Deleting...',
   }
 };
 

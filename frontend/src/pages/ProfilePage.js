@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
-import { User, Gamepad2, Calendar, LogOut, Coins, TrendingUp, Gift, Shield, Edit2, Lock, Save, X, Eye, EyeOff, Info, HelpCircle, BookOpen, FileText } from 'lucide-react';
+import { User, Gamepad2, Calendar, LogOut, Coins, TrendingUp, Gift, Shield, Edit2, Lock, Save, X, Eye, EyeOff, Info, HelpCircle, BookOpen, FileText, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -15,6 +15,7 @@ export function ProfilePage() {
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showPasswords, setShowPasswords] = useState({ current: false, new: false, confirm: false });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   
   const [profileData, setProfileData] = useState({
     email: user?.email || '',
@@ -375,6 +376,48 @@ export function ProfilePage() {
               <LogOut className="w-5 h-5" />
               {t('logout')}
             </button>
+
+            {!showDeleteConfirm ? (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                data-testid="delete-account-btn"
+                className="w-full mt-3 bg-transparent border border-red-500/30 hover:bg-red-500/10 text-red-400 py-3 rounded-sm text-xs flex items-center justify-center gap-2 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                {t('deleteAccount')}
+              </button>
+            ) : (
+              <div className="mt-3 bg-red-500/10 border border-red-500/30 rounded-sm p-4">
+                <p className="text-red-400 text-sm mb-3 text-center">{t('deleteAccountConfirm')}</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={async () => {
+                      try {
+                        const token = localStorage.getItem('token');
+                        await axios.delete(`${API}/auth/delete-account`, {
+                          headers: { Authorization: `Bearer ${token}` }
+                        });
+                        toast.success(t('deleteAccountSuccess'));
+                        logout();
+                      } catch (error) {
+                        toast.error(error.response?.data?.detail || 'Error');
+                      }
+                    }}
+                    data-testid="confirm-delete-btn"
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-sm text-sm font-semibold transition-colors"
+                  >
+                    {t('deleteAccount')}
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    data-testid="cancel-delete-btn"
+                    className="flex-1 bg-[#27272A] hover:bg-[#3a3a3f] text-white py-2 rounded-sm text-sm transition-colors"
+                  >
+                    {isRTL ? 'إلغاء' : 'Cancel'}
+                  </button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
