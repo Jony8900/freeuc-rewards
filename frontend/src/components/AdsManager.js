@@ -1,20 +1,40 @@
 import React, { useEffect, useRef } from 'react';
 
 const ADSENSE_CLIENT = 'ca-pub-4516179296800132';
+const ADSENSE_SCRIPT_URL = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`;
+
+let scriptLoaded = false;
+function loadAdSenseScript() {
+  if (scriptLoaded) return;
+  if (document.querySelector(`script[src*="adsbygoogle"]`)) {
+    scriptLoaded = true;
+    return;
+  }
+  const script = document.createElement('script');
+  script.src = ADSENSE_SCRIPT_URL;
+  script.async = true;
+  script.crossOrigin = 'anonymous';
+  document.head.appendChild(script);
+  scriptLoaded = true;
+}
 
 export function AdBanner({ slot, format = 'auto', style = {} }) {
   const adRef = useRef(null);
   const pushed = useRef(false);
 
   useEffect(() => {
-    if (adRef.current && !pushed.current) {
-      try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-        pushed.current = true;
-      } catch (e) {
-        console.error('AdSense push error:', e);
+    loadAdSenseScript();
+    const timer = setTimeout(() => {
+      if (adRef.current && !pushed.current) {
+        try {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+          pushed.current = true;
+        } catch (e) {
+          console.error('AdSense push error:', e);
+        }
       }
-    }
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -50,7 +70,6 @@ export const AdsConfig = {
   adsenseClient: ADSENSE_CLIENT,
   slots: {
     homeBanner: 'auto',
-    redeemBanner: 'auto',
     profileBanner: 'auto',
   },
 };
