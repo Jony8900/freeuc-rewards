@@ -87,7 +87,7 @@ export function ProfilePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0A0A0C] pb-24 noise-bg">
+    <div className="min-h-screen bg-[#0A0A0C] pb-44 noise-bg">
       <div className="relative z-10 p-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
