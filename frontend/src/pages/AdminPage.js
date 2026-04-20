@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { 
   Users, Coins, ShoppingBag, BarChart3, 
   CheckCircle, XCircle, Clock, Settings,
-  Shield, TrendingUp, Package
+  Shield, TrendingUp, Package, RotateCcw
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
@@ -125,6 +125,25 @@ export function AdminPage() {
             <Package className="w-6 h-6 text-[#F39C12]" />
             <span className="text-white text-sm">{isRTL ? 'إدارة الباقات' : 'Manage Packages'}</span>
           </button>
+          <button
+            onClick={async () => {
+              if (window.confirm(isRTL ? 'هل أنت متأكد من تصفير نقاط جميع المستخدمين؟ لا يمكن التراجع!' : 'Are you sure you want to reset ALL user points? This cannot be undone!')) {
+                try {
+                  const token = localStorage.getItem('token');
+                  const res = await axios.post(`${API}/admin/reset-all-points`, {}, { headers: { Authorization: `Bearer ${token}` }});
+                  toast.success(res.data.message);
+                  fetchData();
+                } catch (error) {
+                  toast.error(error.response?.data?.detail || 'Error');
+                }
+              }
+            }}
+            data-testid="reset-all-points-btn"
+            className="bg-[#141419] border border-red-500/30 rounded-sm p-4 flex items-center gap-3 hover:border-red-500 transition-colors col-span-2"
+          >
+            <RotateCcw className="w-6 h-6 text-red-400" />
+            <span className="text-red-400 text-sm">{isRTL ? 'تصفير نقاط جميع المستخدمين' : 'Reset All User Points'}</span>
+          </button>
         </div>
 
         {/* Tabs */}
@@ -215,6 +234,27 @@ export function AdminPage() {
                   <span className="text-[#F39C12]">{u.points} pts</span>
                   <span className="text-[#8A8A93]">Earned: {u.total_earned}</span>
                   <span className="text-[#8A8A93]">Refs: {u.referred_count}</span>
+                  {!u.is_admin && u.points > 0 && (
+                    <button
+                      onClick={async () => {
+                        if (window.confirm(isRTL ? `تصفير نقاط ${u.username}؟` : `Reset points for ${u.username}?`)) {
+                          try {
+                            const token = localStorage.getItem('token');
+                            await axios.post(`${API}/admin/reset-user-points/${u.id}`, {}, { headers: { Authorization: `Bearer ${token}` }});
+                            toast.success(isRTL ? 'تم تصفير النقاط' : 'Points reset');
+                            fetchData();
+                          } catch (error) {
+                            toast.error('Error');
+                          }
+                        }
+                      }}
+                      data-testid={`reset-points-${u.id}`}
+                      className="text-red-400 hover:text-red-300 flex items-center gap-1"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      {isRTL ? 'تصفير' : 'Reset'}
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

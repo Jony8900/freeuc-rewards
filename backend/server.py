@@ -1065,6 +1065,26 @@ async def update_settings(settings: dict, admin: dict = Depends(get_admin_user))
     
     return {"message": "تم حفظ الإعدادات بنجاح"}
 
+# ============ ADMIN: RESET POINTS ============
+
+@api_router.post("/admin/reset-all-points")
+async def reset_all_points(admin: dict = Depends(get_admin_user)):
+    result = await db.users.update_many(
+        {"is_admin": {"$ne": True}},
+        {"$set": {"points": 0, "total_earned": 0, "ads_watched": 0, "daily_bonus_streak": 0}}
+    )
+    return {"message": f"تم تصفير نقاط {result.modified_count} مستخدم", "count": result.modified_count}
+
+@api_router.post("/admin/reset-user-points/{user_id}")
+async def reset_user_points(user_id: str, admin: dict = Depends(get_admin_user)):
+    result = await db.users.update_one(
+        {"id": user_id},
+        {"$set": {"points": 0, "total_earned": 0, "ads_watched": 0}}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="المستخدم غير موجود")
+    return {"message": "تم تصفير نقاط المستخدم بنجاح"}
+
 # ============ UC PACKAGES MANAGEMENT ============
 
 class UCPackageCreate(BaseModel):
