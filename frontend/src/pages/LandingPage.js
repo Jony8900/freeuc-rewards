@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Target, TrendingUp, Gift, Users, Shield, Star, ChevronDown, Trophy, Zap } from 'lucide-react';
 import { Logo } from '../components/Logo';
 import { AdBanner } from '../components/AdsManager';
@@ -275,10 +275,10 @@ export function LandingPage() {
               <span className="text-white font-display text-sm">GetFreeUC</span>
             </div>
             <div className="flex flex-wrap justify-center gap-4 text-xs text-[#8A8A93]">
-              <a href="/about" className="hover:text-[#F39C12] transition-colors">{isRTL ? 'حول التطبيق' : 'About'}</a>
-              <a href="/faq" className="hover:text-[#F39C12] transition-colors">{isRTL ? 'الأسئلة الشائعة' : 'FAQ'}</a>
-              <a href="/guides" className="hover:text-[#F39C12] transition-colors">{isRTL ? 'الأدلة' : 'Guides'}</a>
-              <a href="/privacy-policy" className="hover:text-[#F39C12] transition-colors">{isRTL ? 'الخصوصية' : 'Privacy'}</a>
+              <Link to="/about" className="hover:text-[#F39C12] transition-colors">{isRTL ? 'حول التطبيق' : 'About'}</Link>
+              <Link to="/faq" className="hover:text-[#F39C12] transition-colors">{isRTL ? 'الأسئلة الشائعة' : 'FAQ'}</Link>
+              <Link to="/guides" className="hover:text-[#F39C12] transition-colors">{isRTL ? 'الأدلة' : 'Guides'}</Link>
+              <Link to="/privacy-policy" className="hover:text-[#F39C12] transition-colors">{isRTL ? 'الخصوصية' : 'Privacy'}</Link>
             </div>
           </div>
           <div className="text-center mt-6">

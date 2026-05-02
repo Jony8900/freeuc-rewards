@@ -70,6 +70,7 @@
 - [x] Removed global AdSense script from index.html
 - [x] Ads only load on content-rich pages
 - [x] Removed ads from low-content pages
+- [x] **Public Landing Page at `/`** (Feb 2026) — converted root from auth-wall to a content-rich SEO page (hero, stats, how-it-works, features, UC packages, levels, FAQ, CTA, footer) in AR/EN. Dashboard moved to `/home`. Logged-in users hitting `/` auto-redirect to `/home`. Verified by testing agent (23/23 assertions).
 
 ## API Endpoints
 - Auth: register, login, me, forgot-password, reset-password, update-profile, change-password, delete-account
@@ -93,7 +94,8 @@
 - [ ] Add 12 testers for closed testing (14 days required)
 
 ### P1 (High)
-- [ ] Wait 2 days then request AdSense re-review
+- [ ] Wait until May 9, 2026 then request AdSense re-review (max attempts reached)
+- [ ] Generate signed AAB with NEW Keystore in Android Studio (old keystore password lost — BadPaddingException; safe since app never published before)
 - [ ] Real ad network integration (AdMob for app)
 
 ### P2 (Medium)
