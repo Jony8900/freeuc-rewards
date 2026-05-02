@@ -10,7 +10,7 @@ export function BottomNav() {
   const isRTL = language === 'ar';
 
   const navItems = [
-    { path: '/', icon: Home, label: t('home') },
+    { path: '/home', icon: Home, label: t('home') },
     { path: '/tasks', icon: Target, label: t('tasks') },
     { path: '/redeem', icon: Coins, label: t('redeem') },
     { path: '/leaderboard', icon: Trophy, label: isRTL ? 'المتصدرين' : 'Top' },
